@@ -1,5 +1,10 @@
 ---
-title: "IS415-project"
+title: "Project Daylight: Analysing the Recycling Stations in Hong Kong"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
 ---
 
 This is a Quarto website.

@@ -5,9 +5,14 @@ website:
   title: "IS415-project"
   navbar:
     left:
+      - text: Proposal
+        href: "Proposal/proposal.html"
+        
+    right:
       - href: index.qmd
         text: Home
       - about.qmd
+
 
 format:
   html:

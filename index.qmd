@@ -6,3 +6,5 @@ listing:
   type: default
   categories: true
 ---
+
+Welcome to our website dedicated to our IS415 Geospatial Analytics project! Here, we embark on an exploration of spatial data analysis, leveraging cutting-edge techniques to glean insights from geographic information. Our journey involves delving into diverse datasets, uncovering patterns, and drawing meaningful conclusions. As we progress, we envision incorporating the dynamic capabilities of Shiny app to present our analyses visually, offering interactive and intuitive representations of our findings. Join us as we navigate the realm of geospatial analytics, where data meets geography to illuminate understanding.

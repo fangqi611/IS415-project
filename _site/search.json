@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Project Daylight: Analysing the Recycling Stations in Hong Kong",
     "section": "",
-    "text": "No matching items"
+    "text": "Welcome to our website dedicated to our IS415 Geospatial Analytics project! Here, we embark on an exploration of spatial data analysis, leveraging cutting-edge techniques to glean insights from geographic information. Our journey involves delving into diverse datasets, uncovering patterns, and drawing meaningful conclusions. As we progress, we envision incorporating the dynamic capabilities of Shiny app to present our analyses visually, offering interactive and intuitive representations of our findings. Join us as we navigate the realm of geospatial analytics, where data meets geography to illuminate understanding.\n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
@@ -12,5 +12,54 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "Proposal/proposal.html",
+    "href": "Proposal/proposal.html",
+    "title": "Our Proposal",
+    "section": "",
+    "text": "To have a better idea on the government’s effort on waste reduction in Hong Kong, we would like to focus on the GREEN@COMMUNITY initiative promoted by the Environmental Protection Department of Hong Kong. As at mid-February 2024, a total of 11 Recycling Stations, 40 Recycling Stores and over 130 Recycling Spots have been set up throughout the 18 districts in Hong Kong under GREEN@COMMUNITY for the collection of nine common types of recyclables including plastics, glass containers, small electrical appliances, regulated electrical equipment, fluorescent lamps/tubes, rechargeable batteries, beverage cartons, waste paper and metals. (LCQ17: Promoting Waste Reduction and Recycling, 2024)"
+  },
+  {
+    "objectID": "Proposal/proposal.html#abstract",
+    "href": "Proposal/proposal.html#abstract",
+    "title": "Our Proposal",
+    "section": "",
+    "text": "To have a better idea on the government’s effort on waste reduction in Hong Kong, we would like to focus on the GREEN@COMMUNITY initiative promoted by the Environmental Protection Department of Hong Kong. As at mid-February 2024, a total of 11 Recycling Stations, 40 Recycling Stores and over 130 Recycling Spots have been set up throughout the 18 districts in Hong Kong under GREEN@COMMUNITY for the collection of nine common types of recyclables including plastics, glass containers, small electrical appliances, regulated electrical equipment, fluorescent lamps/tubes, rechargeable batteries, beverage cartons, waste paper and metals. (LCQ17: Promoting Waste Reduction and Recycling, 2024)"
+  },
+  {
+    "objectID": "Proposal/proposal.html#problem-statement",
+    "href": "Proposal/proposal.html#problem-statement",
+    "title": "Our Proposal",
+    "section": "Problem Statement",
+    "text": "Problem Statement\nIn the Waste Blueprint 2035 by the Environmental Protection Department (EPD) in 2021, Hong Kong aims to reach a 55% recovery rate as a mid-term target. As of 2022, Hong Kong is at 32% recovery rate. To reach the target in around 10 years time, Hong Kong has to make more efforts in achieving the target in time. \nGiven Hong Kong has a very high population density, with 6,740 people per square kilometre , there is a pressing need to assess the distribution and accessibility of recycling stations across the islands. This geospatial analysis aims to investigate whether there are a sufficient number of recycling stations located throughout Hong Kong to effectively serve its population. \nBy examining the spatial distribution of existing recycling facilities in relation to population, residential areas, and commercial districts, this study seeks to identify potential gaps in coverage and areas with inadequate access to recycling services. The findings will provide valuable insights for policymakers, urban planners, and waste management authorities to optimise the placement and allocation of recycling infrastructure, ultimately fostering greater participation in recycling efforts and contributing to sustainable waste management practices in Hong Kong."
+  },
+  {
+    "objectID": "Proposal/proposal.html#objectives-goals",
+    "href": "Proposal/proposal.html#objectives-goals",
+    "title": "Our Proposal",
+    "section": "Objectives Goals",
+    "text": "Objectives Goals\n\nEDA : reveals the low and high density recycling areas. We can target these areas that are lower in density, figure out the problem of the low recycling and think of solutions to encourage this good habit.\nSpatial Point analysis \n\nFirst-order (KDE) : Provides insights to the underlying distribution of the data and we can figure out what is causing the low recycling rate, or even test with hypothesis testing.\nSecond-order (G-Function, F-Function, K-Function) : Quantify the distance of the recycling stations between one another and describe how dispersed the locations are.\n\nNetwork Constrained Spatial Point Pattern Analysis: Geographical analysis understanding the spatial distribution of events within the context of the network structure, enabling insights and decision-making in various domains of the solution to the recycling problem."
+  },
+  {
+    "objectID": "Proposal/proposal.html#data-sets",
+    "href": "Proposal/proposal.html#data-sets",
+    "title": "Our Proposal",
+    "section": "Data sets",
+    "text": "Data sets\n\n\n\nTitle\nSources\nLink\n\n\n\n\n2021 Population Census Statistics (By District Council District)\nDATA.GOV.HK.\nhttps://data.gov.hk/en-data/dataset/hk-censtatd-census_geo-2021-population-census-by-dcd/resource/27beef7f-5995-4b79-b3a9-26352c852fda \n\n\nWaste Less Recycling Collection Point (By Environmental Protection Department)\nDATA.GOV.HK.\nhttps://data.gov.hk/en-data/dataset/hk-epd-recycteam-waste-less-recyclable-collection-points-data \n\n\nLand area, mid-year population and population density (By District Council district)\nCommon Spatial Data Infrastructure (CSDI) - Census and Statistical Department\nhttps://portal.csdi.gov.hk/geoportal/#metadataInfoPanel\n\n\nDistrict Boundary\nCommon Spatial Data Infrastructure (CSDI) - Home Affairs Department\nhttps://portal.csdi.gov.hk/geoportal/?lang=en&datasetId=had_rcd_1634523272907_75218\n\n\nDigital Planning Data of Regulated Areas\nCommon Spatial Data Infrastructure (CSDI) - Planning Department\nhttps://portal.csdi.gov.hk/geoportal/?lang=en&datasetId=c17a8a39-4fed-5e02-8528-998b84011228"
+  },
+  {
+    "objectID": "Proposal/proposal.html#literature-review",
+    "href": "Proposal/proposal.html#literature-review",
+    "title": "Our Proposal",
+    "section": "Literature Review",
+    "text": "Literature Review\n\n\n\nCol1\nCol2\nCol3"
+  },
+  {
+    "objectID": "Proposal/proposal.html#timeline",
+    "href": "Proposal/proposal.html#timeline",
+    "title": "Our Proposal",
+    "section": "Timeline",
+    "text": "Timeline\n\n\n\nWeek\nMilestones\n\n\n\n\n8\nData Cleaning, EDA \n\n\n9\nSpatial Point analysis, First Order\n\n\n10\nSpatial Point analysis, Second Order\n\n\n11\nNetwork Constrained Spatial Point Pattern Analysis\n\n\n12\nFinishing up and tidying up\n\n\n13\nFinalizing, printing the poster\n\n\n14\nPresentation"
   }
 ]

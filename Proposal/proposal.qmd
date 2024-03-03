@@ -2,11 +2,7 @@
 title: "Our Proposal"
 ---
 
-## Abstract:
-
-To have a better idea on the government’s effort on waste reduction in Hong Kong, we would like to focus on the GREEN\@COMMUNITY initiative promoted by the Environmental Protection Department of Hong Kong. As at mid-February 2024, a total of 11 Recycling Stations, 40 Recycling Stores and over 130 Recycling Spots have been set up throughout the 18 districts in Hong Kong under GREEN\@COMMUNITY for the collection of nine common types of recyclables including plastics, glass containers, small electrical appliances, regulated electrical equipment, fluorescent lamps/tubes, rechargeable batteries, beverage cartons, waste paper and metals. [(LCQ17: Promoting Waste Reduction and Recycling, 2024)](https://www.info.gov.hk/gia/general/202402/28/P2024022800418.htm) We will be focusing on analyzing the exisiting location points of recycling stations and see if the initiative has good coverage.
-
-## Problem Statement
+## Problem Statement & Motivation 
 
 In the Waste Blueprint 2035 by the Environmental Protection Department [(EPD)](https://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf) in 2021, Hong Kong aims to reach a 55% recovery rate as a mid-term target. As of 2022, Hong Kong is at 32% recovery rate. To reach the target in around 10 years time, Hong Kong has to make more efforts in achieving the target in time. 
 
@@ -38,11 +34,16 @@ By examining the spatial distribution of existing recycling facilities in relati
 
 ## Literature Review
 
-| Col1 | Col2 | Col3 |
-|------|------|------|
-|      |      |      |
-|      |      |      |
-|      |      |      |
+| Title                                                                                                          | Summarize                                                                                                                                                                                                                                | Sources                                                                                                                   |
+|-------------------------|------------------------|------------------------|
+| With Hong Kong running out of space for its trash, residents are doing more to reduce food waste               | This article talks about how Hong Kong does not have enough space for landfills due to their country’s size and also because of the trouble people have to go through to recycle, which prevents them from cultivating such good habits. | <https://www.channelnewsasia.com/asia/hong-kong-landfills-running-out-space-3217566>                                      |
+| How Hong Kong’s already-serious waste problem has got worse during the pandemic                                | This article talks about how the recycling problem in Hong Kong has been a pressing issue in the state since 1997 and it is only getting worse for them due to the lack of effort and limited land space.                                | <https://www.scmp.com/comment/opinion/article/3160067/how-hong-kongs-already-serious-waste-problem-has-got-worse-during>  |
+| WASTE BLUEPRINT for Hong Kong 2035 Environmental Protection Department. (n.d.).                                | The goals and targets that HKGOV wish to reach in terms of waste reduction in 2035.                                                                                                                                                      | <https://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf>                                             |
+| MONITORING OF SOLID WASTE IN HONG KONG Waste Statistics for 2022 Environmental Protection Department. (n.d.).  | The statistics of HK in solid waste in 2022.                                                                                                                                                                                             | <https://www.wastereduction.gov.hk/sites/default/files/resources_centre/waste_statistics/msw2022_eng.pdf>                 |
+
+## Feature of our Application
+
+Out application will include an interactive map display for users to look out for nearby recycling locations under the GREEN\@Community initiative. Users can zoom in and out on the map to have a better idea on their locations. They can filter out different recycling locations by selecting which districts/ neighbourhoods they wish to visit. The app will also allow users to search in a search bar for a specific location. The data in the app will help the Hong Kong government to understand citizens’ recycling habits to encourage them more through their lifestyle.
 
 ## Timeline
 
@@ -55,3 +56,9 @@ By examining the spatial distribution of existing recycling facilities in relati
 | 12   | Finishing up and tidying up                        |
 | 13   | Finalizing, printing the poster                    |
 | 14   | Presentation                                       |
+
+## References 
+
+1.  LCQ17: Promoting waste reduction and recycling. (2024). Info.gov.hk. <https://www.info.gov.hk/gia/general/202402/28/P2024022800418.htm> ‌
+2.  LCQ12: Operation of the community recycling network GREEN\@COMMUNITY. (2023). Info.gov.hk. <https://www.info.gov.hk/gia/general/202402/28/P2024022800306.htm>
+3.  GovHK (www.gov.hk. (2024, January 16). GovHK: Hong Kong – the Facts. Www.gov.hk. <https://www.gov.hk/en/about/abouthk/facts.htm> 

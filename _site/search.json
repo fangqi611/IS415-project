@@ -4,21 +4,21 @@
     "href": "index.html",
     "title": "Project Daylight: Analysing the Recycling Stations in Hong Kong",
     "section": "",
-    "text": "Welcome to our website dedicated to our IS415 Geospatial Analytics project! Here, we embark on an exploration of spatial data analysis, leveraging cutting-edge techniques to glean insights from geographic information. Our journey involves delving into diverse datasets, uncovering patterns, and drawing meaningful conclusions. As we progress, we envision incorporating the dynamic capabilities of Shiny app to present our analyses visually, offering interactive and intuitive representations of our findings. Join us as we navigate the realm of geospatial analytics, where data meets geography to illuminate understanding.\n\n\n\n\n\n\n\n\n\nNo matching items"
+    "text": "Welcome to our website dedicated to our IS415 Geospatial Analytics project! Here, we embark on an exploration of spatial data analysis, leveraging cutting-edge techniques to glean insights from geographic information. Our journey involves delving into diverse datasets, uncovering patterns, and drawing meaningful conclusions. \nTo have a better idea on the government’s effort on waste reduction in Hong Kong, we would like to focus on the GREEN@COMMUNITY initiative promoted by the Environmental Protection Department of Hong Kong. As at mid-February 2024, a total of 11 Recycling Stations, 40 Recycling Stores and over 130 Recycling Spots have been set up throughout the 18 districts in Hong Kong under GREEN@COMMUNITY for the collection of nine common types of recyclables (LCQ17: Promoting Waste Reduction and Recycling, 2024) In our project, we will be analysing the locations of these and evaluate if the coverage of this initiative is sufficient. To go beyond, we will try to come up with solutions on where to add new recycling stations. In the Shiny Application, we will be creating an interactive map with features that users can zoom in/out on the map, do filtering of results and searching functions. \n\n\n\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "About this site"
   },
   {
     "objectID": "Proposal/proposal.html",
     "href": "Proposal/proposal.html",
     "title": "Our Proposal",
     "section": "",
-    "text": "To have a better idea on the government’s effort on waste reduction in Hong Kong, we would like to focus on the GREEN@COMMUNITY initiative promoted by the Environmental Protection Department of Hong Kong. As at mid-February 2024, a total of 11 Recycling Stations, 40 Recycling Stores and over 130 Recycling Spots have been set up throughout the 18 districts in Hong Kong under GREEN@COMMUNITY for the collection of nine common types of recyclables including plastics, glass containers, small electrical appliances, regulated electrical equipment, fluorescent lamps/tubes, rechargeable batteries, beverage cartons, waste paper and metals. (LCQ17: Promoting Waste Reduction and Recycling, 2024)"
+    "text": "In the Waste Blueprint 2035 by the Environmental Protection Department (EPD) in 2021, Hong Kong aims to reach a 55% recovery rate as a mid-term target. As of 2022, Hong Kong is at 32% recovery rate. To reach the target in around 10 years time, Hong Kong has to make more efforts in achieving the target in time. \nGiven Hong Kong has a very high population density, with 6,740 people per square kilometre , there is a pressing need to assess the distribution and accessibility of recycling stations across the islands. This geospatial analysis aims to investigate whether there are a sufficient number of recycling stations located throughout Hong Kong to effectively serve its population. \nBy examining the spatial distribution of existing recycling facilities in relation to population, residential areas, and commercial districts, this study seeks to identify potential gaps in coverage and areas with inadequate access to recycling services. The findings will provide valuable insights for policymakers, urban planners, and waste management authorities to optimise the placement and allocation of recycling infrastructure, ultimately fostering greater participation in recycling efforts and contributing to sustainable waste management practices in Hong Kong."
   },
   {
     "objectID": "Proposal/proposal.html#abstract",
@@ -53,7 +53,7 @@
     "href": "Proposal/proposal.html#literature-review",
     "title": "Our Proposal",
     "section": "Literature Review",
-    "text": "Literature Review\n\n\n\nCol1\nCol2\nCol3"
+    "text": "Literature Review\n\n\n\nTitle\nSummarize\nSources\n\n\n\n\nWith Hong Kong running out of space for its trash, residents are doing more to reduce food waste\nThis article talks about how Hong Kong does not have enough space for landfills due to their country’s size and also because of the trouble people have to go through to recycle, which prevents them from cultivating such good habits.\nhttps://www.channelnewsasia.com/asia/hong-kong-landfills-running-out-space-3217566\n\n\nHow Hong Kong’s already-serious waste problem has got worse during the pandemic\nThis article talks about how the recycling problem in Hong Kong has been a pressing issue in the state since 1997 and it is only getting worse for them due to the lack of effort and limited land space.\nhttps://www.scmp.com/comment/opinion/article/3160067/how-hong-kongs-already-serious-waste-problem-has-got-worse-during \n\n\nWASTE BLUEPRINT for Hong Kong 2035 Environmental Protection Department. (n.d.).\nThe goals and targets that HKGOV wish to reach in terms of waste reduction in 2035.\nhttps://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf\n\n\nMONITORING OF SOLID WASTE IN HONG KONG Waste Statistics for 2022 Environmental Protection Department. (n.d.).\nThe statistics of HK in solid waste in 2022.\nhttps://www.wastereduction.gov.hk/sites/default/files/resources_centre/waste_statistics/msw2022_eng.pdf"
   },
   {
     "objectID": "Proposal/proposal.html#timeline",
@@ -61,5 +61,26 @@
     "title": "Our Proposal",
     "section": "Timeline",
     "text": "Timeline\n\n\n\nWeek\nMilestones\n\n\n\n\n8\nData Cleaning, EDA \n\n\n9\nSpatial Point analysis, First Order\n\n\n10\nSpatial Point analysis, Second Order\n\n\n11\nNetwork Constrained Spatial Point Pattern Analysis\n\n\n12\nFinishing up and tidying up\n\n\n13\nFinalizing, printing the poster\n\n\n14\nPresentation"
+  },
+  {
+    "objectID": "Proposal/proposal.html#problem-statement-motivation",
+    "href": "Proposal/proposal.html#problem-statement-motivation",
+    "title": "Our Proposal",
+    "section": "",
+    "text": "In the Waste Blueprint 2035 by the Environmental Protection Department (EPD) in 2021, Hong Kong aims to reach a 55% recovery rate as a mid-term target. As of 2022, Hong Kong is at 32% recovery rate. To reach the target in around 10 years time, Hong Kong has to make more efforts in achieving the target in time. \nGiven Hong Kong has a very high population density, with 6,740 people per square kilometre , there is a pressing need to assess the distribution and accessibility of recycling stations across the islands. This geospatial analysis aims to investigate whether there are a sufficient number of recycling stations located throughout Hong Kong to effectively serve its population. \nBy examining the spatial distribution of existing recycling facilities in relation to population, residential areas, and commercial districts, this study seeks to identify potential gaps in coverage and areas with inadequate access to recycling services. The findings will provide valuable insights for policymakers, urban planners, and waste management authorities to optimise the placement and allocation of recycling infrastructure, ultimately fostering greater participation in recycling efforts and contributing to sustainable waste management practices in Hong Kong."
+  },
+  {
+    "objectID": "Proposal/proposal.html#feature-of-our-application",
+    "href": "Proposal/proposal.html#feature-of-our-application",
+    "title": "Our Proposal",
+    "section": "Feature of our Application",
+    "text": "Feature of our Application\nOut application will include an interactive map display for users to look out for nearby recycling locations under the GREEN@Community initiative. Users can zoom in and out on the map to have a better idea on their locations. They can filter out different recycling locations by selecting which districts/ neighbourhoods they wish to visit. The app will also allow users to search in a search bar for a specific location. The data in the app will help the Hong Kong government to understand citizens’ recycling habits to encourage them more through their lifestyle."
+  },
+  {
+    "objectID": "Proposal/proposal.html#references",
+    "href": "Proposal/proposal.html#references",
+    "title": "Our Proposal",
+    "section": "References",
+    "text": "References\n\nLCQ17: Promoting waste reduction and recycling. (2024). Info.gov.hk. https://www.info.gov.hk/gia/general/202402/28/P2024022800418.htm ‌\nLCQ12: Operation of the community recycling network GREEN@COMMUNITY. (2023). Info.gov.hk. https://www.info.gov.hk/gia/general/202402/28/P2024022800306.htm\nGovHK (www.gov.hk. (2024, January 16). GovHK: Hong Kong – the Facts. Www.gov.hk. https://www.gov.hk/en/about/abouthk/facts.htm"
   }
 ]

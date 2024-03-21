@@ -16,10 +16,14 @@ date: "`r Sys.Date()`"
 pacman::p_load(arrow, lubridate, maptools, sp, sf, raster, spatstat, tmap, classInt, viridis, tidyverse, spNetwork, readxl)
 ```
 
+## Importing Aspatial Data 
+
+## 1. 
+
 ```{r}
 hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
 ```
 
 ```{r}
-recycle_point <-read.csv()
+cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
 ```

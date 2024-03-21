@@ -2,7 +2,7 @@
 title: "Our Proposal"
 ---
 
-## Problem Statement & Motivation 
+## Problem Statement & Motivation
 
 In the Waste Blueprint 2035 by the Environmental Protection Department [(EPD)](https://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf) in 2021, Hong Kong aims to reach a 55% recovery rate as a mid-term target. As of 2022, Hong Kong is at 32% recovery rate. To reach the target in around 10 years time, Hong Kong has to make more efforts in achieving the target in time. 
 
@@ -25,7 +25,7 @@ By examining the spatial distribution of existing recycling facilities in relati
 ## Data sets
 
 | Title                                                                                | Sources                                                                       | Link                                                                                                                                      |
-|---------------------|-------------------|---------------------------------|
+|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | 2021 Population Census Statistics (By District Council District)                     | DATA.GOV.HK.                                                                  | <https://data.gov.hk/en-data/dataset/hk-censtatd-census_geo-2021-population-census-by-dcd/resource/27beef7f-5995-4b79-b3a9-26352c852fda>  |
 | Waste Less Recycling Collection Point (By Environmental Protection Department)       | DATA.GOV.HK.                                                                  | <https://data.gov.hk/en-data/dataset/hk-epd-recycteam-waste-less-recyclable-collection-points-data>                                       |
 | Land area, mid-year population and population density (By District Council district) | Common Spatial Data Infrastructure (CSDI) - Census and Statistical Department | <https://portal.csdi.gov.hk/geoportal/#metadataInfoPanel>                                                                                 |
@@ -34,12 +34,12 @@ By examining the spatial distribution of existing recycling facilities in relati
 
 ## Literature Review
 
-| Title                                                                                                          | Summarize                                                                                                                                                                                                                                | Sources                                                                                                                   |
-|-------------------------|------------------------|------------------------|
-| With Hong Kong running out of space for its trash, residents are doing more to reduce food waste               | This article talks about how Hong Kong does not have enough space for landfills due to their country’s size and also because of the trouble people have to go through to recycle, which prevents them from cultivating such good habits. | <https://www.channelnewsasia.com/asia/hong-kong-landfills-running-out-space-3217566>                                      |
-| How Hong Kong’s already-serious waste problem has got worse during the pandemic                                | This article talks about how the recycling problem in Hong Kong has been a pressing issue in the state since 1997 and it is only getting worse for them due to the lack of effort and limited land space.                                | <https://www.scmp.com/comment/opinion/article/3160067/how-hong-kongs-already-serious-waste-problem-has-got-worse-during>  |
-| WASTE BLUEPRINT for Hong Kong 2035 Environmental Protection Department. (n.d.).                                | The goals and targets that HKGOV wish to reach in terms of waste reduction in 2035.                                                                                                                                                      | <https://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf>                                             |
-| MONITORING OF SOLID WASTE IN HONG KONG Waste Statistics for 2022 Environmental Protection Department. (n.d.).  | The statistics of HK in solid waste in 2022.                                                                                                                                                                                             | <https://www.wastereduction.gov.hk/sites/default/files/resources_centre/waste_statistics/msw2022_eng.pdf>                 |
+| Title                                                                                                         | Summarize                                                                                                                                                                                                                                | Sources                                                                                                                   |
+|---------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| With Hong Kong running out of space for its trash, residents are doing more to reduce food waste              | This article talks about how Hong Kong does not have enough space for landfills due to their country’s size and also because of the trouble people have to go through to recycle, which prevents them from cultivating such good habits. | <https://www.channelnewsasia.com/asia/hong-kong-landfills-running-out-space-3217566>                                      |
+| How Hong Kong’s already-serious waste problem has got worse during the pandemic                               | This article talks about how the recycling problem in Hong Kong has been a pressing issue in the state since 1997 and it is only getting worse for them due to the lack of effort and limited land space.                                | <https://www.scmp.com/comment/opinion/article/3160067/how-hong-kongs-already-serious-waste-problem-has-got-worse-during>  |
+| WASTE BLUEPRINT for Hong Kong 2035 Environmental Protection Department. (n.d.).                               | The goals and targets that HKGOV wish to reach in terms of waste reduction in 2035.                                                                                                                                                      | <https://www.eeb.gov.hk/sites/default/files/pdf/waste_blueprint_2035_eng.pdf>                                             |
+| MONITORING OF SOLID WASTE IN HONG KONG Waste Statistics for 2022 Environmental Protection Department. (n.d.). | The statistics of HK in solid waste in 2022.                                                                                                                                                                                             | <https://www.wastereduction.gov.hk/sites/default/files/resources_centre/waste_statistics/msw2022_eng.pdf>                 |
 
 ## Feature of our Application
 
@@ -57,7 +57,7 @@ Out application will include an interactive map display for users to look out fo
 | 13   | Finalizing, printing the poster                    |
 | 14   | Presentation                                       |
 
-## References 
+## References
 
 1.  LCQ17: Promoting waste reduction and recycling. (2024). Info.gov.hk. <https://www.info.gov.hk/gia/general/202402/28/P2024022800418.htm> ‌
 2.  LCQ12: Operation of the community recycling network GREEN\@COMMUNITY. (2023). Info.gov.hk. <https://www.info.gov.hk/gia/general/202402/28/P2024022800306.htm>

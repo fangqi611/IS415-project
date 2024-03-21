@@ -1,0 +1,25 @@
+---
+title: "Exploratory Data Analysis (EDA)"
+format: html
+date-modified: "last-modified"
+execute:  
+  warning: false
+  freeze: true
+  message: false 
+  eval: true 
+  echo: true 
+  fig-retine: 3
+date: "`r Sys.Date()`"
+---
+
+```{r}
+pacman::p_load(arrow, lubridate, maptools, sp, sf, raster, spatstat, tmap, classInt, viridis, tidyverse, spNetwork, readxl)
+```
+
+```{r}
+hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
+```
+
+```{r}
+recycle_point <-read.csv()
+```

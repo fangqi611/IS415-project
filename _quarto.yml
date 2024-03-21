@@ -7,7 +7,10 @@ website:
     left:
       - text: Proposal
         href: "Proposal/proposal.html"
+      - text: EDA
+        href: "EDA/eda.html"
         
+    
     right:
       - href: index.qmd
         text: Home

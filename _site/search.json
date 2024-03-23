@@ -82,5 +82,40 @@
     "title": "Our Proposal",
     "section": "References",
     "text": "References\n\nLCQ17: Promoting waste reduction and recycling. (2024). Info.gov.hk. https://www.info.gov.hk/gia/general/202402/28/P2024022800418.htm ‌\nLCQ12: Operation of the community recycling network GREEN@COMMUNITY. (2023). Info.gov.hk. https://www.info.gov.hk/gia/general/202402/28/P2024022800306.htm\nGovHK (www.gov.hk. (2024, January 16). GovHK: Hong Kong – the Facts. Www.gov.hk. https://www.gov.hk/en/about/abouthk/facts.htm"
+  },
+  {
+    "objectID": "EDA/storyboard.html",
+    "href": "EDA/storyboard.html",
+    "title": "Storyboard",
+    "section": "",
+    "text": "This is will be the UI design of our Shiny App."
+  },
+  {
+    "objectID": "EDA/storyboard.html#analysis-pages-spaa-netspaa",
+    "href": "EDA/storyboard.html#analysis-pages-spaa-netspaa",
+    "title": "Storyboard",
+    "section": "Analysis Pages: SPAA & NETSPAA",
+    "text": "Analysis Pages: SPAA & NETSPAA\nThe following 2 pages also include interactive feature such as drop-down menu for the districts that we do our analysis on."
+  },
+  {
+    "objectID": "EDA/eda.html",
+    "href": "EDA/eda.html",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "",
+    "text": "pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)"
+  },
+  {
+    "objectID": "EDA/eda.html#importing-aspatial-data",
+    "href": "EDA/eda.html#importing-aspatial-data",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "Importing Aspatial Data",
+    "text": "Importing Aspatial Data"
+  },
+  {
+    "objectID": "EDA/eda.html#section",
+    "href": "EDA/eda.html#section",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "1.",
+    "text": "1.\n\nhk_census &lt;- read_excel(\"data/aspatial/hkcensus.xlsx\")\n\n\ncp &lt;- read_csv(\"data/aspatial/hkrecyclepoints.csv\")\n\nChange the geographic location\n\ncp_sf &lt;- st_as_sf(cp, \n                  coords = c(\"lgt\",\"lat\"), \n                  crs = 2326)\n\n\ndistrict_18 &lt;- st_read(dsn = \"data/geospatial/hk_18Districts/\",\n                       layer = \"HKDistrict18\" )\n\n\nst_crs(district_18)\n\n\ndistrict_18 &lt;- district_18 %&gt;% st_transform(crs = 2326)\n\n\nst_crs(district_18)\n\n\nplot(st_geometry(district_18))\n\n\ntmap_mode('plot')\ntm_shape(cp_sf)+\n  tm_dots()\n\n\ncp_ppp &lt;- as.ppp(cp_sf)\n\n\nsummary(cp_ppp)\n\n\nplot(cp_ppp)\n\n\nhk_owin &lt;- as.owin(district_18) \n\n\nsummary(hk_owin)\n\n\nhk_cp_ppp = cp_ppp[hk_owin]\nsummary(hk_cp_ppp)\n\n\nplot(hk_cp_ppp)\n\n\n#kde_cp_bw &lt;- density(hk_cp_ppp,\n                    #sigma=bw.diggle,\n                    #edge=TRUE,\n                    #kernel=\"gaussian\")"
   }
 ]

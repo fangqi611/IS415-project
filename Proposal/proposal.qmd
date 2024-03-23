@@ -1,5 +1,14 @@
 ---
 title: "Our Proposal"
+date: "`r Sys.Date()`" 
+format: html
+execute:
+  eval: true
+  echo: true
+  freeze: true
+  warning: false
+  message: false
+editor: visual
 ---
 
 ## Problem Statement & Motivation

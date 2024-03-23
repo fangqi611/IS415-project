@@ -6,9 +6,18 @@ website:
   navbar:
     left:
       - text: Proposal
-        href: "Proposal/proposal.html"
+        menu: 
+          - text: Proposal
+            href: "Proposal/proposal.html"
+          - text: Storyboard
+            href: "EDA/storyboard.html"
+      
       - text: EDA
         href: "EDA/eda.html"
+          
+        
+            
+        
         
     
     right:

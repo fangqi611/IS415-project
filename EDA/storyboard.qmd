@@ -1,0 +1,32 @@
+---
+title: "Storyboard"
+date: "`r Sys.Date()`" 
+format: html
+execute:
+  eval: true
+  echo: true
+  freeze: true
+  warning: false
+  message: false
+editor: visual
+---
+
+This is will be the UI design of our Shiny App.
+
+### Home Page
+
+![](images/clipboard-3889418583.png)
+
+### Visualization Page
+
+This will be the Visualization Tab where users are able to have idea of the locations of Green\@Community recycling points. We have include some interaction features such as drop-down menu for them to select their desirable districts and recyclables that they want to recycle.
+
+![](images/clipboard-690793078.png)
+
+## Analysis Pages: SPAA & NETSPAA
+
+The following 2 pages also include interactive feature such as drop-down menu for the districts that we do our analysis on.
+
+![](images/clipboard-805621792.png)
+
+![](images/clipboard-2302619658.png)

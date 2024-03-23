@@ -1,0 +1,14 @@
+{
+  "hash": "6a71b061ad1b80dbbfea7934569d74d7",
+  "result": {
+    "markdown": "---\ntitle: \"Exploratory Data Analysis (EDA)\"\nformat: html\ndate-modified: \"last-modified\"\nexecute:  \n  warning: false\n  freeze: true\n  message: false \n  eval: true \n  echo: true \n  fig-retine: 3\ndate: \"2024-03-23\"\n---\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)\n```\n:::\n\n\n## Importing Aspatial Data\n\n## 1.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhk_census <- read_excel(\"data/aspatial/hkcensus.xlsx\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncp <- read_csv(\"data/aspatial/hkrecyclepoints.csv\")\n```\n:::\n\n\nChange the geographic location\n\n\n::: {.cell}\n\n```{.r .cell-code}\ncp_sf <- st_as_sf(cp, \n                  coords = c(\"lgt\",\"lat\"), \n                  crs = 2326)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ndistrict_18 <- st_read(dsn = \"data/geospatial/hk_18Districts/\",\n                       layer = \"HKDistrict18\" )\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nst_crs(district_18)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ndistrict_18 <- district_18 %>% st_transform(crs = 2326)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nst_crs(district_18)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplot(st_geometry(district_18))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ntmap_mode('plot')\ntm_shape(cp_sf)+\n  tm_dots()\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncp_ppp <- as.ppp(cp_sf)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nsummary(cp_ppp)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplot(cp_ppp)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nhk_owin <- as.owin(district_18) \n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nsummary(hk_owin)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nhk_cp_ppp = cp_ppp[hk_owin]\nsummary(hk_cp_ppp)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nplot(hk_cp_ppp)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\n#kde_cp_bw <- density(hk_cp_ppp,\n                    #sigma=bw.diggle,\n                    #edge=TRUE,\n                    #kernel=\"gaussian\") \n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

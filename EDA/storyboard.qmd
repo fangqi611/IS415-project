@@ -1,14 +1,15 @@
 ---
 title: "Storyboard"
-date: "`r Sys.Date()`" 
 format: html
-execute:
-  eval: true
-  echo: true
-  freeze: true
+date-modified: "last-modified"
+execute:  
   warning: false
-  message: false
-editor: visual
+  freeze: true
+  message: false 
+  eval: true 
+  echo: true 
+  fig-retine: 3
+date: "`r Sys.Date()`"
 ---
 
 This is will be the UI design of our Shiny App.

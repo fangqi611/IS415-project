@@ -16,9 +16,9 @@ date: "`r Sys.Date()`"
 pacman::p_load(arrow, lubridate, maptools, sp, sf, raster, spatstat, tmap, classInt, viridis, tidyverse, spNetwork, readxl)
 ```
 
-## Importing Aspatial Data 
+## Importing Aspatial Data
 
-## 1. 
+## 1.
 
 ```{r}
 hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
@@ -26,4 +26,105 @@ hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
 
 ```{r}
 cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
+```
+
+Change the geographic location
+
+```{r}
+cp_sf <- st_as_sf(cp, 
+                  coords = c("lgt","lat"), 
+                  crs = 2326)
+```
+
+DIstrict boundary is not useful at all.
+
+```{r}
+#district_boundary <- st_read(dsn = "data/geospatial/hkdistrictboundary",
+                             layer = "DCD")
+```
+
+```{r}
+#st_crs(district_boundary)
+```
+
+```{r}
+#plot(st_geometry(district_boundary))
+```
+
+```{r}
+regulated_area <- st_read(dsn = "data/geospatial/hkregulatedarea",
+                          layer = "REGULATED_AREA")
+```
+
+Regulated area isn't useful as well.
+
+```{r}
+#st_crs(regulated_area)
+```
+
+```{r}
+#plot(st_geometry(regulated_area))
+```
+
+```{r}
+district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
+                       layer = "HKDistrict18" )
+```
+
+```{r}
+st_crs(district_18)
+```
+
+```{r}
+district_18 <- district_18 %>% st_transform(crs = 2326)
+```
+
+```{r}
+st_crs(district_18)
+```
+
+```{r}
+plot(st_geometry(district_18))
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(cp_sf)+
+  tm_dots()
+```
+
+```{r}
+cp_ppp <- as.ppp(cp_sf)
+```
+
+```{r}
+summary(cp_ppp)
+```
+
+```{r}
+plot(cp_ppp)
+```
+
+```{r}
+hk_owin <- as.owin(district_18) 
+```
+
+```{r}
+summary(hk_owin)
+```
+
+```{r}
+hk_cp_ppp = cp_ppp[hk_owin]
+summary(hk_cp_ppp)
+```
+
+```{r}
+plot(hk_cp_ppp)
+```
+
+```{r}
+kde_cp_bw <- density(hk_cp_ppp,
+                    sigma=bw.diggle,
+                    edge=TRUE,
+                    kernel="gaussian") 
 ```

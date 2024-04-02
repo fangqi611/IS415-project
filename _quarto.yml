@@ -14,9 +14,13 @@ website:
       
       - text: EDA
         href: "EDA/eda.html"
-          
         
+      - text: Analysis
+        menu: 
+          - text: NKDE
+            href: "Analysis/NKDE.html"
             
+        
         
         
     

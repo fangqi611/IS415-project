@@ -1,0 +1,26 @@
+---
+title: "Data Preparation"
+format: html
+date-modified: "last-modified"
+execute:  
+  warning: false
+  freeze: true
+  message: false 
+  eval: true 
+  echo: true 
+  fig-retine: 3
+date: "`r Sys.Date()`"
+---
+
+```{r}
+pacman::p_load(arrow, sf, tidyverse)
+```
+
+```{r}
+osm_basemap <- tm_basemap(server = "OpenStreetMap.HOT")
+imagery_basemap <- tm_basemap(server = "Esri.WorldImagery")
+```
+
+```{r}
+
+```

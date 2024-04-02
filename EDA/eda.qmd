@@ -14,63 +14,148 @@ date: "`r Sys.Date()`"
 
 ```{r}
 #| eval: false
-pacman::p_load(arrow, lubridate, tidyverse,maptools, sf, spNetwork, raster, spatstat, tmap)
+pacman::p_load(arrow, lubridate, tidyverse, sf, spNetwork, raster, spatstat, tmap, readxl)
+```
+
+```{r}
+osm_basemap <- tm_basemap(server = "OpenStreetMap.HOT")
+imagery_basemap <- tm_basemap(server = "Esri.WorldImagery")
 ```
 
 ## Importing Aspatial Data
 
-## 1.
-
 ```{r}
-#| eval: false
 hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
 ```
 
+## Importing Geospatial Data
+
+### Cycling Points in Hong Kong
+
 ```{r}
-#| eval: false
 cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
 ```
 
 Change the geographic location
 
 ```{r}
-#| eval: false
 cp_sf <- st_as_sf(cp, 
                   coords = c("lgt","lat"), 
-                  crs = 2326)
+                  crs = 4326) %>% 
+  st_transform(crs= 2326)
 ```
 
 ```{r}
-#| eval: false
+summary(cp_sf)
+```
+
+```{r}
+plot(st_geometry(cp_sf))
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(cp_sf)+
+  tm_dots()
+```
+
+```{r}
+unique_legends <- unique(cp_sf$legend)
+
+# Print or inspect the unique values
+print(unique_legends)
+```
+
+```{r}
+
+
+```
+
+### 18 Districts in Hong Kong
+
+```{r}
 district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
                        layer = "HKDistrict18" )
 ```
 
 ```{r}
-#| eval: false
 st_crs(district_18)
 ```
 
 ```{r}
 #| eval: false
-district_18 <- district_18 %>% st_transform(crs = 2326)
+sf_district_18 <- district_18 %>% st_transform(crs = 2326)
 ```
 
 ```{r}
 #| eval: false
-st_crs(district_18)
+st_crs(sf_district_18)
 ```
 
 ```{r}
 #| eval: false
-plot(st_geometry(district_18))
+plot(st_geometry(sf_district_18))
+```
+
+```{r}
+class(sf_district_18)
+```
+
+### Road Data in Hong Kong
+
+```{r}
+#| eval: false
+road_data <- st_read(dsn = "data/geospatial/china-latest-free.shp", 
+                     layer = "gis_osm_roads_free_1")
+```
+
+```{r}
+st_crs(road_data)
+```
+
+#### Transform the Data into Hong Kong Projection System
+
+```{r}
+#| eval: false
+road_data_2326 <- st_transform(road_data, 2326)
+```
+
+```{r}
+st_crs(road_data_2326)
 ```
 
 ```{r}
 #| eval: false
+roads_in_hk <- st_intersection(road_data_2326, sf_district_18)
+```
+
+```{r}
+class(roads_in_hk)
+```
+
+```{r}
+#| eval: false
+write_rds(roads_in_hk, "data/rds/sf_roads_in_hk.rds")
+```
+
+```{r}
+roads_in_hk <- read_rds("data/rds/sf_roads_in_hk.rds")
+```
+
+```{r}
 tmap_mode('plot')
-tm_shape(cp_sf)+
-  tm_dots()
+
+# Plot roads
+tm_shape(roads_in_hk, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  # Plot Grab origin data
+  tm_shape(cp_sf) +
+  tm_dots(size = 0.5, col = "red", alpha = 0.8)
+```
+
+```{r}
+
 ```
 
 ```{r}
@@ -84,18 +169,43 @@ summary(cp_ppp)
 ```
 
 ```{r}
+any(duplicated(cp_ppp))
+```
+
+```{r}
 #| eval: false
 plot(cp_ppp)
 ```
 
 ```{r}
-#| eval: false
-hk_owin <- as.owin(district_18) 
+summary(sf_district_18)
+```
+
+```{r}
+hk_owin <- as.owin(sf_district_18) 
+```
+
+```{r}
+summary(hk_owin)
+```
+
+```{r}
+st_crs(cp_sf)
+st_crs(sf_district_18)
+
+```
+
+```{r}
+library(tmap)
+tmap_mode("view")
+tm_shape(ymt)+
+  tm_borders()+
+  osm_basemap
 ```
 
 ```{r}
 #| eval: false
-summary(hk_owin)
+plot(hk_owin)
 ```
 
 ```{r}
@@ -110,8 +220,243 @@ plot(hk_cp_ppp)
 ```
 
 ```{r}
-#kde_cp_bw <- density(hk_cp_ppp,
-                    #sigma=bw.diggle,
-                    #edge=TRUE,
-                    #kernel="gaussian") 
+kde_cp_bw <- density(hk_cp_ppp,
+                    sigma=bw.diggle,
+                    edge=TRUE,
+                    kernel="gaussian") 
+
+```
+
+```{r}
+plot(kde_cp_bw)
+```
+
+## Network Kernal Density Estimation
+
+```{r}
+tmap_mode('plot')
+tm_shape(roads_in_hk, geometry_type = "lines") + 
+  tm_lines()
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_hk))
+
+print(unique_types)
+```
+
+```{r}
+summary(roads_in_hk)
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_hk))
+```
+
+```{r}
+if ("LINESTRING" %in% unique_types) {
+  roads_in_hk <- st_cast(roads_in_hk, "LINESTRING")
+} else {
+  # handle the case when no linestrings are found
+  stop("No linestrings found in roads_in_hk")
+}
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_hk))
+print(unique_types)
+```
+
+```{r}
+roads_lines <- roads_in_hk[st_geometry_type(roads_in_hk) == "LINESTRING", ]
+```
+
+```{r}
+class(roads_lines)
+```
+
+```{r}
+lixels <- lixelize_lines(roads_lines,5000, mindist = 2500)
+
+samples <- lines_center(lixels)
+```
+
+```{r}
+lixels_hk <- lixelize_lines(roads_lines,750, mindist = 375)
+
+samples_hk <- lines_center(lixels)
+```
+
+```{r}
+densities <- nkde(roads_lines, 
+                  events = cp_sf,
+                  w = rep(1,nrow(cp_sf)),
+                  samples = samples,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_hk$density <- densities
+lixels_hk$density <- densities
+
+samples_hk$density <- samples_tm$density*1000
+lixels_hk$density <- lixels_tm$density*1000
+
+tmap_mode("view")
+tm_shape(lixels_hk)+
+  tm_lines(col="density")+
+tm_shape(cp_sf)+
+  tm_dots(alpha=0.1) +
+tm_basemap("OpenStreetMap")
+```
+
+# Types of Recycling Points 
+
+```{r}
+cp_sf_1 <- cp_sf %>%
+  mutate(district_id = toupper(str_replace_all(district_id, "_", " ")))
+```
+
+```{r}
+recycling_bins <- subset(cp_sf_1, legend == "Recycling Bins at Public Place")
+recycling_spots <- subset(cp_sf_1, legend == "Recycling Spots")
+private_collection_points <- subset(cp_sf_1, legend == "Private Collection Points (e.g. housing estates, shopping centres)")
+ngo_collection_points <- subset(cp_sf_1, legend == "NGO Collection Points")
+recycling_stations <- subset(cp_sf_1, legend == "Recycling Stations/Recycling Stores")
+street_corner_recycling_shops <- subset(cp_sf_1, legend == "Street Corner Recycling Shops")
+smart_bins <- subset(cp_sf_1, legend == "Smart Bin")
+```
+
+```{r}
+recycling_spots_cp <- st_join(sf_district_18, recycling_spots)
+ngo_cp <- st_join(sf_district_18, ngo_collection_points)
+pcp_joined_data <- st_join(sf_district_18, private_collection_points)
+recycling_bins_cp <- st_join(sf_district_18, recycling_bins)
+recycling_stations_cp <- st_join(sf_district_18, recycling_stations)
+street_corner_cp <- st_join(sf_district_18, street_corner_recycling_shops)
+smart_bins_cp <- st_join(sf_district_18, smart_bins)
+```
+
+```{r}
+private_collection_points_by_district <- pcp_joined_data %>%
+  group_by(ENAME) %>%
+  summarize(total_pcp = n())
+
+ngo_cp_by_district <- ngo_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_ngo_cp = n())
+
+recycling_spots_by_district <- recycling_spots_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_spots = n())
+
+recycling_bins_by_district <- recycling_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_bins = n())
+
+recycling_stations_by_district <- recycling_stations_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_stations = n())
+
+street_corner_shops_by_district <- street_corner_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_street_corner = n())
+
+smart_bins_by_district <- smart_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_smart_bins = n())
+
+```
+
+```{r}
+pcp_map <- tm_shape(private_collection_points_by_district) +
+  tm_fill(col = "total_pcp") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Private Collection Points by District",main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+
+```
+
+```{r}
+ngo_cp_map <- tm_shape(ngo_cp_by_district) +
+  tm_fill(col = "total_ngo_cp") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of NGO Points by District", main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_spots_map <- tm_shape(recycling_spots_by_district) +
+  tm_fill(col = "total_recycling_spots") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Spots by District",main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_bins_map <- tm_shape(recycling_bins_by_district) +
+  tm_fill(col = "total_recycling_bins") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Bins by District", main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_stations_map <- tm_shape(recycling_stations_by_district) +
+  tm_fill(col = "total_recycling_stations") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Stations by District", main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+street_corner_shops_map <- tm_shape(street_corner_shops_by_district) +
+  tm_fill(col = "total_street_corner") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Street Corner by District", main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+smart_bin_map <- tm_shape(smart_bins_by_district) +
+  tm_fill(col = "total_smart_bins") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Smart Bins by District",main.title.position = "center", main.title.size = 1)+
+  tm_scale_bar()
+```
+
+```{r}
+tmap_arrange(pcp_map,ngo_cp_map,recycling_spots_map,recycling_bins_map,recycling_stations_map,street_corner_map,smart_bin_map, ncol=2)
+```
+
+```{r}
+# Adjusting the layout for better arrangement
+tmap_arrange(
+  pcp_map,
+  ngo_cp_map,
+  recycling_spots_map,
+  recycling_bins_map,
+  recycling_stations_map,
+  street_corner_shops_map,
+  smart_bin_map,
+  ncol = 2,
+  asp = 0,    # Set aspect ratio to 0 to allow individual resizing of maps
+  widths = c(1, 1),   # Set the relative widths of columns
+  heights = c(1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)   # Set the relative heights of rows
+)
+
+```
+
+```{r}
+
 ```

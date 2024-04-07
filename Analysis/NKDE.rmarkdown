@@ -1,0 +1,930 @@
+---
+title: "Network Kernal Density Estimation (NKDE)"
+format: html
+date-modified: "last-modified"
+execute:  
+  warning: false
+  freeze: true
+  message: false 
+  eval: true 
+  echo: true 
+  fig-retine: 3
+date: "`r Sys.Date()`"
+---
+
+
+### 1 Getting Started
+
+
+```{r}
+pacman::p_load(arrow, dplyr, lubridate, ggplot2, tidyverse, sf, sfdep, sp, spNetwork, spdep, raster, spatstat, tmap, readxl, plotly)
+```
+
+```{r}
+osm_basemap <- tm_basemap(server = "OpenStreetMap.HOT")
+imagery_basemap <- tm_basemap(server = "Esri.WorldImagery")
+```
+
+
+### 2. Importing Data
+
+#### 2.1 Asaptial Data
+
+
+```{r}
+hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
+```
+
+
+#### 2.2 Geospatial Data
+
+#### 2.2.1 18 Districts in Hong Kong
+
+
+```{r}
+district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
+                       layer = "HKDistrict18" )
+```
+
+```{r}
+sf_district_18 <- district_18 %>% st_transform(crs = 2326)
+```
+
+```{r}
+st_crs(sf_district_18)
+```
+
+```{r}
+tmap_mode("plot")
+d18_map <- tm_shape(sf_district_18) +
+  tm_fill(col = "ENAME", title = "District", legend.show = FALSE) +
+  tm_borders(col = "black", lwd = 0.5) +
+  tm_text("ID", size = 0.5, col = "black") +
+  tm_layout(frame = FALSE)
+
+d18_map
+```
+
+
+#### 2.2.2 Recycling Points in Hong Kong
+
+
+```{r}
+cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
+```
+
+
+Change the geographic location
+
+
+```{r}
+cp_sf <- st_as_sf(cp, 
+                  coords = c("lgt","lat"), 
+                  crs = 4326) %>% 
+  st_transform(crs= 2326)
+```
+
+```{r}
+summary(cp_sf)
+```
+
+```{r}
+cp_sf_1 <- cp_sf %>%
+  mutate(district_id = toupper(str_replace_all(district_id, "_", " ")))
+```
+
+```{r}
+recycling_bins <- subset(cp_sf_1, legend == "Recycling Bins at Public Place")
+recycling_spots <- subset(cp_sf_1, legend == "Recycling Spots")
+private_collection_points <- subset(cp_sf_1, legend == "Private Collection Points (e.g. housing estates, shopping centres)")
+ngo_collection_points <- subset(cp_sf_1, legend == "NGO Collection Points")
+recycling_stations <- subset(cp_sf_1, legend == "Recycling Stations/Recycling Stores")
+street_corner_recycling_shops <- subset(cp_sf_1, legend == "Street Corner Recycling Shops")
+smart_bins <- subset(cp_sf_1, legend == "Smart Bin")
+```
+
+```{r}
+recycling_spots_cp <- st_join(sf_district_18, recycling_spots)
+ngo_cp <- st_join(sf_district_18, ngo_collection_points)
+pcp_joined_data <- st_join(sf_district_18, private_collection_points)
+recycling_bins_cp <- st_join(sf_district_18, recycling_bins)
+recycling_stations_cp <- st_join(sf_district_18, recycling_stations)
+street_corner_cp <- st_join(sf_district_18, street_corner_recycling_shops)
+smart_bins_cp <- st_join(sf_district_18, smart_bins)
+```
+
+```{r}
+private_collection_points_by_district <- pcp_joined_data %>%
+  group_by(ENAME) %>%
+  summarize(total_pcp = n())
+
+ngo_cp_by_district <- ngo_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_ngo_cp = n())
+
+recycling_spots_by_district <- recycling_spots_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_spots = n())
+
+recycling_bins_by_district <- recycling_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_bins = n())
+
+recycling_stations_by_district <- recycling_stations_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_stations = n())
+
+street_corner_shops_by_district <- street_corner_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_street_corner = n())
+
+smart_bins_by_district <- smart_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_smart_bins = n())
+```
+
+```{r}
+
+```
+
+
+#### 2.3 Road Data in Hong Kong
+
+
+```{r}
+#| eval: false
+road_data <- st_read(dsn = "data/geospatial/china-latest-free.shp", 
+                     layer = "gis_osm_roads_free_1")
+```
+
+
+Transform the Data into Hong Kong Projection System
+
+
+```{r}
+#| eval: false
+road_data_2326 <- st_transform(road_data, 2326)
+```
+
+```{r}
+#| eval: false
+roads_in_hk <- st_intersection(road_data_2326, sf_district_18)
+```
+
+```{r}
+#| eval: false
+write_rds(roads_in_hk, "data/rds/sf_roads_in_hk.rds")
+```
+
+```{r}
+roads_in_hk <- read_rds("data/rds/sf_roads_in_hk.rds")
+```
+
+
+### 3. Visualizing Recycling Points in Hong Kong
+
+
+```{r}
+pcp_map <- tm_shape(private_collection_points_by_district) +
+  tm_fill(col = "total_pcp") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Private Collection Points by District",main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+
+```
+
+```{r}
+ngo_cp_map <- tm_shape(ngo_cp_by_district) +
+  tm_fill(col = "total_ngo_cp") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of NGO Points by District", main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_spots_map <- tm_shape(recycling_spots_by_district) +
+  tm_fill(col = "total_recycling_spots") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Spots by District",main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_bins_map <- tm_shape(recycling_bins_by_district) +
+  tm_fill(col = "total_recycling_bins") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Bins by District", main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+recycling_stations_map <- tm_shape(recycling_stations_by_district) +
+  tm_fill(col = "total_recycling_stations") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE, main.title = "Distribution of Recycling Stations by District", main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+street_corner_shops_map <- tm_shape(street_corner_shops_by_district) +
+  tm_fill(col = "total_street_corner") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Street Corner Shops by District", main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+smart_bin_map <- tm_shape(smart_bins_by_district) +
+  tm_fill(col = "total_smart_bins") +
+  tm_borders() +
+  tm_layout(legend.show = TRUE,main.title = "Distribution of Smart Bins by District",main.title.position = "center", main.title.size = 0.75)+
+  tm_scale_bar()
+```
+
+```{r}
+tmap_arrange(pcp_map,recycling_spots_map, recycling_bins_map,ngo_cp_map, recycling_stations_map, street_corner_shops_map, smart_bin_map, ncol=2, nrow = 4)
+```
+
+
+Since we want to conduct a more accurate analysis on the recycling points, We will focus on the recycling facilities type with a higher number of data - Private Collection Points and Recycling Bins.
+
+#### 3.1 Private Collection Points
+
+
+```{r}
+wm_q_pcp <- private_collection_points_by_district %>%
+  mutate(nb = st_contiguity(geometry, queen = TRUE),
+         wt = st_weights(nb,
+                         style = "W",
+                         allow_zero = TRUE),
+         .before = 1) 
+wm_q_pcp
+```
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q_pcp$total_pcp,
+                       wm_q_pcp$nb,
+                       wm_q_pcp$wt,
+                  zero.policy = TRUE,
+                  nsim = 999)
+```
+
+```{r}
+lisa_pcp <- wm_q_pcp %>% 
+  mutate(local_moran = local_moran(
+    total_pcp, nb, wt, zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+lisa_sig_pcp <- lisa_pcp  %>%
+  filter(p_ii < 0.05)
+
+tmap_mode("plot")
+tm_shape(lisa_pcp) +
+  tm_polygons() +
+  tm_borders(alpha = 0.7) +
+tm_shape(lisa_pcp) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+
+#### 3.2 Recycling Bins
+
+
+```{r}
+wm_q_rbins <- recycling_bins_by_district %>%
+  mutate(nb = st_contiguity(geometry, queen = TRUE),
+         wt = st_weights(nb,
+                         style = "W",
+                         allow_zero = TRUE),
+         .before = 1) 
+wm_q_rbins
+```
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q_rbins$total_recycling_bins,
+                       wm_q_rbins$nb,
+                       wm_q_rbins$wt,
+                  zero.policy = TRUE,
+                  nsim = 999)
+```
+
+```{r}
+lisa_rbins <- wm_q_rbins %>% 
+  mutate(local_moran = local_moran(
+    total_recycling_bins, nb, wt, zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+lisa_sig_rbins <- lisa_rbins  %>%
+  filter(p_ii < 0.05)
+
+tmap_mode("plot")
+tm_shape(lisa_rbins) +
+  tm_polygons() +
+  tm_borders(alpha = 0.7) +
+tm_shape(lisa_rbins) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+
+Considering the Hot-Spot Analysis on the Private Collection Points and Public Recycling bins, they are maininly locate far from the residential area. Therefore, we decide to refer to the census data in Hong Kong.
+
+
+```{r}
+ggplot(hk_census, aes(x = DNAME, y = POPULATION)) +
+  geom_bar(stat = "identity", fill = "steelblue", color = "black") +
+  geom_text(aes(label = POPULATION), vjust = -0.5) +
+  theme_minimal() +
+  labs(title = "Population by District",
+       x = "District Name",
+       y = "Population") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+Since Sha Tin has the most population, we will focus on Sha Tin district. Moreover, we want to choose another district with both commercial and residential area. Therefore, we will be analyzing on Yau Tsim Mong Area as well.
+
+
+```{r}
+sha_tin_recycling_points <- cp_sf_1 %>%
+  filter(district_id == "SHA TIN" & 
+         (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
+```
+
+```{r}
+ytm_recycling_points <- cp_sf_1 %>%
+  filter(district_id == "YAU TSIM MONG" & 
+         (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
+```
+
+
+### 4. Sha Tin District
+
+
+```{r}
+shatin <- sf_district_18 %>%
+  filter(ENAME == "SHA TIN")
+```
+
+```{r}
+plot(st_geometry((shatin)))
+```
+
+```{r}
+roads_in_shatin <- st_intersection(roads_in_hk, shatin)
+```
+
+```{r}
+#| eval: false
+write_rds(roads_in_shatin, "data/rds/roads_in_shatin.rds")
+```
+
+```{r}
+roads_in_shatin <- read_rds("data/rds/roads_in_shatin.rds")
+```
+
+```{r}
+#| eval: false
+private_cp_shatin <- st_intersection(private_collection_points, shatin)
+```
+
+```{r}
+#| eval: false
+public_cp_shatin <- st_intersection(recycling_bins, shatin)
+```
+
+```{r}
+#| eval: false
+cp_shatin <- st_intersection(sha_tin_recycling_points, shatin)
+```
+
+```{r}
+#| eval: false
+write_rds(private_cp_shatin, "data/rds/private_cp_shatin.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(public_cp_shatin, "data/rds/public_cp_shatin.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(cp_shatin, "data/rds/cp_shatin.rds")
+```
+
+```{r}
+private_cp_shatin <- read_rds("data/rds/private_cp_shatin.rds")
+```
+
+```{r}
+public_cp_shatin <- read_rds("data/rds/public_cp_shatin.rds")
+```
+
+```{r}
+cp_shatin <- read_rds("data/rds/cp_shatin.rds")
+```
+
+```{r}
+plot(st_geometry(private_cp_shatin))
+```
+
+```{r}
+plot(st_geometry(public_cp_shatin))
+```
+
+```{r}
+plot(st_geometry(cp_shatin))
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_shatin))
+unique_types
+```
+
+```{r}
+roads_in_shatin <- roads_in_shatin %>%
+  filter(st_geometry_type(geometry) %in% c("LINESTRING", "MULTILINESTRING"))
+
+```
+
+```{r}
+if ("LINESTRING" %in% unique_types) {
+  roads_in_shatin <- st_cast(roads_in_shatin, "LINESTRING")
+} else {
+  # handle the case when no linestrings are found
+  stop("No linestrings found in roads_in_shatin")
+}
+```
+
+```{r}
+tmap_mode('plot')
+tm_shape(roads_in_shatin, geometry_type = "lines") + 
+  tm_lines()
+```
+
+```{r}
+tmap_mode('plot')
+
+# Plot roads
+tm_shape(roads_in_shatin, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  # Plot Punggol area boundary
+  tm_shape(shatin) +
+  tm_borders() +
+  
+  # Plot Grab origin data
+  tm_shape(private_cp_shatin) +
+  tm_dots()
+```
+
+```{r}
+tmap_mode("view")
+
+# Create the map using tmap
+cp_shatin_map <- osm_basemap + 
+  tm_shape(cp_shatin) +
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) +
+  tm_layout(title = "Recycling Bin Locations in Sha Tin")
+
+cp_shatin_map
+```
+
+```{r}
+roads_lines_shatin <- roads_in_shatin[st_geometry_type(roads_in_shatin) == "LINESTRING", ]
+
+# Apply lixelize_lines with mindist
+lixels_shatin <- lixelize_lines(roads_lines_shatin,5000, mindist = 2500)
+```
+
+```{r}
+samples_shatin <- lines_center(roads_lines_shatin)
+```
+
+
+#### 4.1 Private Collection Points in Sha Tin
+
+
+```{r}
+densities_shatin_private <- nkde(roads_lines_shatin, 
+                  events = private_cp_shatin,
+                  w = rep(1,nrow(private_cp_shatin)),
+                  samples = samples_shatin,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_shatin$density_private <- densities_shatin_private
+lixels_shatin$density_private <- densities_shatin_private
+```
+
+```{r}
+# rescaling to help the mapping
+samples_shatin$density_private <- samples_shatin$density_private*1000
+lixels_shatin$density_private <- lixels_shatin$density_private*1000
+```
+
+```{r}
+tmap_mode('view')
+
+shatin_density_private <- osm_basemap+
+tm_shape(lixels_shatin)+
+  tm_lines(col="density_private")+
+tm_shape(private_cp_shatin)+
+  tm_dots()
+
+shatin_density_private
+ 
+```
+
+
+#### 4.2 Public Recycling Bins in Sha Tin
+
+
+```{r}
+densities_shatin_public <- nkde(roads_lines_shatin, 
+                  events = public_cp_shatin,
+                  w = rep(1,nrow(public_cp_shatin)),
+                  samples = samples_shatin,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_shatin$density_public <- densities_shatin_public
+lixels_shatin$density_public <- densities_shatin_public
+```
+
+```{r}
+# rescaling to help the mapping
+samples_shatin$density_public <- samples_shatin$density_public*1000
+lixels_shatin$density_public <- lixels_shatin$density_public*1000
+```
+
+```{r}
+tmap_mode('view')
+
+
+shatin_density_public <- osm_basemap+
+tm_shape(lixels_shatin)+
+  tm_lines(col="density_public")+
+tm_shape(public_cp_shatin)+
+  tm_dots()
+
+shatin_density_public
+
+```
+
+
+#### 4.3 Both Private and Public Bins in Sha Tin Districts
+
+
+```{r}
+densities_shatin_ppcp <- nkde(roads_lines_shatin, 
+                  events = cp_shatin,
+                  w = rep(1,nrow(cp_shatin)),
+                  samples = samples_shatin,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_shatin$density_ppcp <- densities_shatin_ppcp
+lixels_shatin$density_ppcp <- densities_shatin_ppcp
+```
+
+```{r}
+# rescaling to help the mapping
+samples_shatin$density_ppcp <- samples_shatin$density_ppcp*1000
+lixels_shatin$density_ppcp <- lixels_shatin$density_ppcp*1000
+```
+
+```{r}
+tmap_mode('view')
+
+shatin_density_ppcp <- osm_basemap +
+  tm_shape(lixels_shatin) +
+  tm_lines(col = "density_ppcp") +
+  tm_shape(cp_shatin) +
+  tm_layout(
+    legend.position = c("left", "top"),
+    legend.text.size = 0.5,  # Adjust this value as needed for smaller legend text
+    legend.title.size = 0.6  # Adjust this value as needed for smaller legend title
+  )+
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) 
+
+shatin_density_ppcp
+```
+
+
+### 5. Yau Tsim Mong Area
+
+
+```{r}
+ytm <- sf_district_18 %>%
+  filter(ENAME == "YAU TSIM MONG")
+```
+
+```{r}
+plot(st_geometry((ytm)))
+```
+
+```{r}
+#| eval: false
+roads_in_ytm <- st_intersection(roads_in_hk, ytm)
+```
+
+```{r}
+#| eval: false
+write_rds(roads_in_ytm, "data/rds/roads_in_ytm.rds")
+```
+
+```{r}
+roads_in_ytm <- read_rds("data/rds/roads_in_ytm.rds")
+```
+
+```{r}
+#| eval: false
+private_cp_ytm <- st_intersection(private_collection_points, ytm)
+```
+
+```{r}
+#| eval: false
+public_cp_ytm <- st_intersection(recycling_bins, ytm)
+```
+
+```{r}
+#| eval: false
+cp_ytm <- st_intersection(ytm_recycling_points, ytm)
+```
+
+```{r}
+#| eval: false
+write_rds(private_cp_ytm, "data/rds/private_cp_ytm.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(public_cp_ytm, "data/rds/public_cp_ytm.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(cp_ytm, "data/rds/cp_ytm.rds")
+```
+
+```{r}
+private_cp_ytm <- read_rds("data/rds/private_cp_ytm.rds")
+```
+
+```{r}
+public_cp_ytm <- read_rds("data/rds/public_cp_ytm.rds")
+```
+
+```{r}
+plot(st_geometry(private_cp_ytm))
+```
+
+```{r}
+plot(st_geometry(public_cp_ytm))
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_ytm))
+unique_types
+```
+
+```{r}
+roads_in_ytm <- roads_in_ytm %>%
+  filter(st_geometry_type(geometry) %in% c("LINESTRING", "MULTILINESTRING"))
+
+```
+
+```{r}
+if ("LINESTRING" %in% unique_types) {
+  roads_in_ytm <- st_cast(roads_in_ytm, "LINESTRING")
+} else {
+  # handle the case when no linestrings are found
+  stop("No linestrings found in roads_in_ytm")
+}
+```
+
+```{r}
+#| eval: false
+tmap_mode('plot')
+tm_shape(roads_in_ytm, geometry_type = "lines") + 
+  tm_lines()
+```
+
+
+#### 5.1 Private Collection Poitns in YTM
+
+
+```{r}
+#| eval: false
+tmap_mode('plot')
+
+# Plot roads
+tm_shape(roads_in_ytm, geometry_type = "lines") + 
+  tm_lines(lwd = 1, col = "blue") +
+  
+  tm_shape(ytm) +
+  tm_borders() +
+
+  tm_shape(private_cp_ytm) +
+  tm_dots()
+```
+
+```{r}
+tmap_mode("view")
+
+# Create the map using tmap
+cp_shatin_map <- osm_basemap + 
+  tm_shape(cp_ytm) +
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) +
+  tm_layout(title = "Recycling Bin Locations in Sha Tin")
+
+cp_shatin_map
+```
+
+```{r}
+roads_lines_ytm <- roads_in_ytm[st_geometry_type(roads_in_ytm) == "LINESTRING", ]
+
+# Apply lixelize_lines with mindist
+lixels_ytm <- lixelize_lines(roads_lines_ytm,5000, mindist = 2500)
+```
+
+```{r}
+samples_ytm <- lines_center(lixels_ytm)
+```
+
+```{r}
+densities_ytm_private <- nkde(roads_lines_ytm, 
+                  events = private_cp_ytm,
+                  w = rep(1,nrow(private_cp_ytm)),
+                  samples = samples_ytm,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_ytm$density_private <- densities_ytm_private
+lixels_ytm$density_private <- densities_ytm_private
+```
+
+```{r}
+# rescaling to help the mapping
+samples_ytm$density_private <- samples_ytm$density_private*1000
+lixels_ytm$density_private <- lixels_ytm$density_private*1000
+```
+
+```{r}
+tmap_mode('view')
+
+ytm_density_private <- osm_basemap + 
+  tm_shape(lixels_ytm)+
+  tm_lines(col="density_private")+
+tm_shape(private_cp_ytm)+
+  tm_dots()
+
+ytm_density_private
+```
+
+
+#### 5.2 Public Recycling Bins in YTM
+
+
+```{r}
+densities_ytm_public <- nkde(roads_lines_ytm, 
+                  events = public_cp_ytm,
+                  w = rep(1,nrow(public_cp_ytm)),
+                  samples = samples_ytm,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_ytm$density_public <- densities_ytm_public
+lixels_ytm$density_public <- densities_ytm_public
+```
+
+```{r}
+# rescaling to help the mapping
+samples_ytm$density_public <- samples_ytm$density_public*1000
+lixels_ytm$density_public <- lixels_ytm$density_public*1000
+```
+
+```{r}
+tmap_mode('view')
+
+ytm_density_public <-osm_basemap + 
+tm_shape(lixels_ytm)+
+  tm_lines(col="density_public")+
+tm_shape(private_cp_ytm)+
+  tm_dots()
+
+ytm_density_public
+```
+
+
+#### 5.3 Both Public and Private Recycling Bins in YTM
+
+
+```{r}
+densities_ytm_ppcp <- nkde(roads_lines_ytm, 
+                  events = cp_ytm,
+                  w = rep(1,nrow(cp_ytm)),
+                  samples = samples_ytm,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_ytm$density_ppcp <- densities_ytm_ppcp
+lixels_ytm$density_ppcp <- densities_ytm_ppcp
+```
+
+```{r}
+# rescaling to help the mapping
+samples_ytm$density_ppcp <- samples_ytm$density_ppcp*1000
+lixels_ytm$density_ppcp <- lixels_ytm$density_ppcp*1000
+```
+
+```{r}
+tmap_mode('view')
+
+ytm_density_ppcp <-osm_basemap + 
+  tm_shape(lixels_ytm)+
+  tm_lines(col="density_ppcp")+
+  tm_shape(cp_ytm)+
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05)
+  
+
+ytm_density_ppcp
+```
+

@@ -59,7 +59,7 @@ d18_map <- tm_shape(sf_district_18) +
 d18_map
 ```
 
-#### 2.2.2 Cycling Points in Hong Kong
+#### 2.2.2 Recycling Points in Hong Kong
 
 ```{r}
 cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
@@ -330,6 +330,18 @@ ggplot(hk_census, aes(x = DNAME, y = POPULATION)) +
 
 Since Sha Tin has the most population, we will focus on Sha Tin district. Moreover, we want to choose another district with both commercial and residential area. Therefore, we will be analyzing on Yau Tsim Mong Area as well.
 
+```{r}
+sha_tin_recycling_points <- cp_sf_1 %>%
+  filter(district_id == "SHA TIN" & 
+         (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
+```
+
+```{r}
+ytm_recycling_points <- cp_sf_1 %>%
+  filter(district_id == "YAU TSIM MONG" & 
+         (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
+```
+
 ### 4. Sha Tin District
 
 ```{r}
@@ -366,12 +378,22 @@ public_cp_shatin <- st_intersection(recycling_bins, shatin)
 
 ```{r}
 #| eval: false
+cp_shatin <- st_intersection(sha_tin_recycling_points, shatin)
+```
+
+```{r}
+#| eval: false
 write_rds(private_cp_shatin, "data/rds/private_cp_shatin.rds")
 ```
 
 ```{r}
 #| eval: false
 write_rds(public_cp_shatin, "data/rds/public_cp_shatin.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(cp_shatin, "data/rds/cp_shatin.rds")
 ```
 
 ```{r}
@@ -383,11 +405,19 @@ public_cp_shatin <- read_rds("data/rds/public_cp_shatin.rds")
 ```
 
 ```{r}
+cp_shatin <- read_rds("data/rds/cp_shatin.rds")
+```
+
+```{r}
 plot(st_geometry(private_cp_shatin))
 ```
 
 ```{r}
 plot(st_geometry(public_cp_shatin))
+```
+
+```{r}
+plot(st_geometry(cp_shatin))
 ```
 
 ```{r}
@@ -430,6 +460,18 @@ tm_shape(roads_in_shatin, geometry_type = "lines") +
   # Plot Grab origin data
   tm_shape(private_cp_shatin) +
   tm_dots()
+```
+
+```{r}
+tmap_mode("view")
+
+# Create the map using tmap
+cp_shatin_map <- osm_basemap + 
+  tm_shape(cp_shatin) +
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) +
+  tm_layout(title = "Recycling Bin Locations in Sha Tin")
+
+cp_shatin_map
 ```
 
 ```{r}
@@ -532,6 +574,54 @@ shatin_density_public
 
 ```
 
+#### 4.3 Both Private and Public Bins in Sha Tin Districts
+
+```{r}
+densities_shatin_ppcp <- nkde(roads_lines_shatin, 
+                  events = cp_shatin,
+                  w = rep(1,nrow(cp_shatin)),
+                  samples = samples_shatin,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_shatin$density_ppcp <- densities_shatin_ppcp
+lixels_shatin$density_ppcp <- densities_shatin_ppcp
+```
+
+```{r}
+# rescaling to help the mapping
+samples_shatin$density_ppcp <- samples_shatin$density_ppcp*1000
+lixels_shatin$density_ppcp <- lixels_shatin$density_ppcp*1000
+```
+
+```{r}
+tmap_mode('view')
+
+shatin_density_ppcp <- osm_basemap +
+  tm_shape(lixels_shatin) +
+  tm_lines(col = "density_ppcp") +
+  tm_shape(cp_shatin) +
+  tm_layout(
+    legend.position = c("left", "top"),
+    legend.text.size = 0.5,  # Adjust this value as needed for smaller legend text
+    legend.title.size = 0.6  # Adjust this value as needed for smaller legend title
+  )+
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) 
+
+shatin_density_ppcp
+```
+
 ### 5. Yau Tsim Mong Area
 
 ```{r}
@@ -569,12 +659,22 @@ public_cp_ytm <- st_intersection(recycling_bins, ytm)
 
 ```{r}
 #| eval: false
+cp_ytm <- st_intersection(ytm_recycling_points, ytm)
+```
+
+```{r}
+#| eval: false
 write_rds(private_cp_ytm, "data/rds/private_cp_ytm.rds")
 ```
 
 ```{r}
 #| eval: false
 write_rds(public_cp_ytm, "data/rds/public_cp_ytm.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(cp_ytm, "data/rds/cp_ytm.rds")
 ```
 
 ```{r}
@@ -635,6 +735,18 @@ tm_shape(roads_in_ytm, geometry_type = "lines") +
 
   tm_shape(private_cp_ytm) +
   tm_dots()
+```
+
+```{r}
+tmap_mode("view")
+
+# Create the map using tmap
+cp_shatin_map <- osm_basemap + 
+  tm_shape(cp_ytm) +
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) +
+  tm_layout(title = "Recycling Bin Locations in Sha Tin")
+
+cp_shatin_map
 ```
 
 ```{r}
@@ -730,4 +842,48 @@ tm_shape(private_cp_ytm)+
   tm_dots()
 
 ytm_density_public
+```
+
+#### 5.3 Both Public and Private Recycling Bins in YTM
+
+```{r}
+densities_ytm_ppcp <- nkde(roads_lines_ytm, 
+                  events = cp_ytm,
+                  w = rep(1,nrow(cp_ytm)),
+                  samples = samples_ytm,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_ytm$density_ppcp <- densities_ytm_ppcp
+lixels_ytm$density_ppcp <- densities_ytm_ppcp
+```
+
+```{r}
+# rescaling to help the mapping
+samples_ytm$density_ppcp <- samples_ytm$density_ppcp*1000
+lixels_ytm$density_ppcp <- lixels_ytm$density_ppcp*1000
+```
+
+```{r}
+tmap_mode('view')
+
+ytm_density_ppcp <-osm_basemap + 
+  tm_shape(lixels_ytm)+
+  tm_lines(col="density_ppcp")+
+  tm_shape(cp_ytm)+
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05)
+  
+
+ytm_density_ppcp
 ```

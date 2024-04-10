@@ -366,6 +366,12 @@ ytm_recycling_points <- cp_sf_1 %>%
          (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
 ```
 
+```{r}
+wanchai_recycling_points <- cp_sf_1 %>%
+  filter(district_id == "WAN CHAI" & 
+         (legend == "Private Collection Points (e.g. housing estates, shopping centres)" | legend == "Recycling Bins at Public Place"))
+```
+
 
 ### 4. Sha Tin District
 
@@ -926,5 +932,168 @@ ytm_density_ppcp <-osm_basemap +
   
 
 ytm_density_ppcp
+```
+
+
+
+### 6. Wan Chai (Hong Kong Island) 
+
+
+```{r}
+wanchai <- sf_district_18 %>%
+  filter(ENAME == "WAN CHAI")
+```
+
+```{r}
+plot(st_geometry((wanchai)))
+```
+
+```{r}
+#| eval: false
+roads_in_wanchai <- st_intersection(roads_in_hk, wanchai)
+```
+
+```{r}
+#| eval: false
+write_rds(roads_in_wanchai, "data/rds/roads_in_wanchai.rds")
+```
+
+```{r}
+roads_in_wanchai <- read_rds("data/rds/roads_in_wanchai.rds")
+```
+
+```{r}
+#| eval: false
+private_cp_wanchai <- st_intersection(private_collection_points, wanchai)
+```
+
+```{r}
+#| eval: false
+public_cp_wanchai<- st_intersection(recycling_bins, wanchai)
+```
+
+```{r}
+#| eval: false
+cp_wanchai <- st_intersection(wanchai_recycling_points, wanchai)
+```
+
+```{r}
+#| eval: false
+write_rds(private_cp_wanchai, "data/rds/private_cp_wanchai.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(public_cp_wanchai, "data/rds/public_cp_wanchai.rds")
+```
+
+```{r}
+#| eval: false
+write_rds(cp_wanchai, "data/rds/cp_wanchai.rds")
+```
+
+```{r}
+private_cp_wanchai <- read_rds("data/rds/private_cp_wanchai.rds")
+```
+
+```{r}
+public_cp_wanchai <- read_rds("data/rds/public_cp_wanchai.rds")
+```
+
+```{r}
+plot(st_geometry(private_cp_wanchai))
+```
+
+```{r}
+plot(st_geometry(public_cp_wanchai))
+```
+
+```{r}
+unique_types <- unique(st_geometry_type(roads_in_wanchai))
+unique_types
+```
+
+```{r}
+roads_in_wanchai <- roads_in_wanchai %>%
+  filter(st_geometry_type(geometry) %in% c("LINESTRING", "MULTILINESTRING"))
+
+```
+
+```{r}
+if ("LINESTRING" %in% unique_types) {
+  roads_in_wanchai <- st_cast(roads_in_wanchai, "LINESTRING")
+} else {
+  # handle the case when no linestrings are found
+  stop("No linestrings found in roads_in_ytm")
+}
+```
+
+```{r}
+#| eval: false
+tmap_mode('plot')
+tm_shape(roads_in_wanchai, geometry_type = "lines") + 
+  tm_lines()
+```
+
+
+
+#### 6.3 Both Private and Public Bins in Wan Chai Districts
+
+
+```{r}
+roads_lines_wanchai <- roads_in_wanchai[st_geometry_type(roads_in_wanchai) == "LINESTRING", ]
+
+# Apply lixelize_lines with mindist
+lixels_wanchai <- lixelize_lines(roads_lines_wanchai,5000, mindist = 2500)
+```
+
+```{r}
+samples_wanchai <- lines_center(lixels_wanchai)
+```
+
+```{r}
+densities_wanchai_ppcp <- nkde(roads_lines_wanchai, 
+                  events = cp_wanchai,
+                  w = rep(1,nrow(cp_wanchai)),
+                  samples = samples_wanchai,
+                  kernel_name = "quartic",
+                  bw = 300, 
+                  div= "bw", 
+                  method = "simple", 
+                  digits = 1, 
+                  tol = 1,
+                  grid_shape = c(1,1), 
+                  max_depth = 8,
+                  agg = 5, #we aggregate events within a 5m radius (faster calculation)
+                  sparse = TRUE,
+                  verbose = FALSE)
+```
+
+```{r}
+samples_wanchai$density_ppcp <- densities_wanchai_ppcp
+lixels_wanchai$density_ppcp <- densities_wanchai_ppcp
+```
+
+```{r}
+# rescaling to help the mapping
+samples_wanchai$density_ppcp <- samples_wanchai$density_ppcp*1000
+lixels_wanchai$density_ppcp <- lixels_wanchai$density_ppcp*1000
+```
+
+```{r}
+tmap_mode('view')
+
+wanchai_density_ppcp <- osm_basemap +
+  tm_shape(lixels_wanchai) +
+  tm_lines(col = "density_ppcp") +
+  tm_shape(cp_wanchai) +
+  tm_layout(
+    legend.position = c("left", "top"),
+    legend.text.size = 0.5,  # Adjust this value as needed for smaller legend text
+    legend.title.size = 0.6  # Adjust this value as needed for smaller legend title
+  )+
+  tm_dots(col = "legend", palette = c("blue", "red"), border.col = "black", size = 0.05) 
+
+wanchai_density_ppcp
 ```
 

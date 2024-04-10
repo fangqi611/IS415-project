@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(shinythemes)
 library(sf)
 library(tmap)
 library(arrow)
@@ -25,7 +26,7 @@ library(ggmap)
 library(tidymodels)
 library(glmnet)
 library(readxl)
-library(shinydashboard)
+
 
 #####################################
 
@@ -47,41 +48,50 @@ sf_district_18 <- st_transform(district_18, crs = 2326)
 #####################################
 
 # Define UI for application that draws a histogram
-ui <- dashboardPage(
-  dashboardHeader(title = "HK Recycling Stations Analysis"),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
-      menuItem("KDE", tabName = "kde", icon = icon("map")),
-      menuItem("NKDE", tabName = "nkde", icon = icon("map-marked"))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      # Overview tab content
-      tabItem(tabName = "overview",
-              fluidRow(
-                box(title = "Overview Map", status = "primary", solidHeader = TRUE,
-                    tmapOutput("d18_map", height = "600px")) # Adjust height as needed
-              )),
-      # KDE tab content
-      tabItem(tabName = "kde",
-              fluidRow(
-                box(title = "Kernel Density Estimation", status = "warning", solidHeader = TRUE
-                    # Placeholder for KDE output. Replace with your actual output UI element.
-                   
-              ))),
-      # NKDE tab content
-      tabItem(tabName = "nkde",
-              fluidRow(
-                box(title = "Normalized Kernel Density Estimation", status = "info", solidHeader = TRUE
-                    # Placeholder for NKDE output. Replace with your actual output UI element.
-                    
-              ))
-    )
-  )
+ui <- fluidPage(theme=shinytheme("lumen"),
+                
+                # -----Navigation Bar
+                navbarPage("Project Daylight", fluid=TRUE, windowTitle="Simple Geo-Spatial Analysis using R and Shiny ", selected="overview",
+                           
+                           
+                           tabPanel('Overview', value = "overview", fluid = TRUE, icon = icon("map"),
+                                    sidebarLayout(position = "left",fluid = TRUE, 
+                                                  sidebarPanel(width=3, fluid = TRUE, 
+                                                               conditionalPanel(
+                                                                 'input.EDAset === "Bivariate Analysis"',
+                                                                 selectInput(inputId="EdaLod",
+                                                                             label="EDA Level",
+                                                                             choices=varLod,
+                                                                             selected="LAD",
+                                                                             multiple=FALSE,
+                                                                             width="100%"
+                                                                 ),
+                                                                 selectInput(inputId="EdaMeasureY",
+                                                                             label="Select Variable Y",
+                                                                             choices=varMeasure1,
+                                                                             selected="h_nutrients_calories",
+                                                                             multiple=FALSE,
+                                                                             width="100%"
+                                                                 ),
+                                                                 selectInput(inputId="EdaMeasureX",
+                                                                             label="Select Variable X",
+                                                                             choices=varMeasure1,
+                                                                             selected="energy_carb",
+                                                                             multiple=FALSE,
+                                                                             width="100%"
+                                                                 )
+                                                              )
+                                                              ), 
+                                                  mainPanel(width = 9)
+                                                
+                             
+                           )
+                           )
+                )
+                
+                
 )
-)
+
 
 
 # Define server logic required to draw a histogram

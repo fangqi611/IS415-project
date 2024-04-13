@@ -1,0 +1,15 @@
+---
+title: "Project Deliverables"
+---
+
+## 1. [Project Webpage](https://is415-project-daylight.netlify.app/)
+
+## 2. [Research Paper](https://is415-project-daylight.netlify.app/proposal/proposal)
+
+## 3. [R Shiny Application](https://is415-ka33rina.shinyapps.io/project_daylight/)
+
+## 4. User Guide of Shiny Application 
+
+## 5. Poster
+
+![](images/final_poster.jpg){width="753"}

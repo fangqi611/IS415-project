@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "IS415-project"
+  title: "Project Daylight"
   navbar:
     left:
       - text: Proposal
@@ -11,9 +11,9 @@ website:
             href: "Proposal/proposal.html"
           - text: Storyboard
             href: "EDA/storyboard.html"
-      
-      - text: EDA
-        href: "EDA/eda.html"
+            
+      - text: Deliverables
+        href: "deliverables.html"
         
       - text: Analysis
         menu: 
@@ -27,6 +27,10 @@ website:
     right:
       - href: index.qmd
         text: Home
+        
+      - text: Github 
+        href: "https://github.com/fangqi611/IS415-project" 
+        
     
 
 

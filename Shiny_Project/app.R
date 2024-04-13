@@ -495,7 +495,7 @@ server <- function(input, output, session) {
       map_data <- filteredData()
       
       # Check if the dataset is empty and the district is not 'All'
-      if (!any(is.na(map_data)) && input$District != "All") {
+      if (!any(is.na(map_data))) {
         # Return a UI element with the message
         return(HTML("<div style='color: red; padding: 10px;'><strong>No data available for the selected criteria in the specified district.</strong></div>"))
       }

@@ -8,6 +8,8 @@ title: "Project Deliverables"
 
 ## 3. [R Shiny Application](https://is415-ka33rina.shinyapps.io/project_daylight/)
 
-## 4. Poster
+## 4. [User Guide of Shiny Application](user_guide.html)
+
+## 5. Poster
 
 ![](images/final_poster.jpg){width="753"}

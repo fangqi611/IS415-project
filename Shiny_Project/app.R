@@ -304,6 +304,7 @@ ui <- fluidPage(tags$head(
                                        )), 
                                       
                                       ), 
+                           tabPanel("KDE", icon = icon("earth")),
                            tabPanel("NKDE", icon = icon("globe"), 
                                     h2(p("Network Spatial Point Analysis")), 
                                     tabsetPanel(

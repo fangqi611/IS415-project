@@ -1,11 +1,8 @@
 ---
 title: "Project Daylight: Analysing the Recycling Stations in Hong Kong"
-listing:
-  contents: posts
-  sort: "date desc"
-  type: default
-  categories: true
 ---
+
+Presented by: Karina Lee Sheung Yan, Lim Fang Qi
 
 ![](images/Logo.png){fig-align="center"}
 

@@ -492,7 +492,6 @@ write_rds(roads_lines_shatin, "data/rds/roads_lines_shatin.rds")
 roads_lines_shatin <- read_rds("data/rds/roads_lines_shatin.rds")
 ```
 
-
 ```{r}
 # Apply lixelize_lines with mindist
 lixels_shatin <- lixelize_lines(roads_lines_shatin,5000, mindist = 2500)
@@ -644,7 +643,6 @@ write_rds(densities_shatin_ppcp , "data/rds/densities_shatin_ppcp.rds")
 densities_shatin_ppcp <- read_rds("data/rds/densities_shatin_ppcp.rds")
 ```
 
-
 ```{r}
 samples_shatin$density_ppcp <- densities_shatin_ppcp
 lixels_shatin$density_ppcp <- densities_shatin_ppcp
@@ -693,7 +691,6 @@ kfun_shatin_ppcp <- kfunctions(roads_in_shatin,
 #| eval: false
 write_rds(kfun_shatin_ppcp, "data/rds/kfun_shatin_ppcp.rds")
 ```
-
 
 ```{r}
 kfun_shatin_ppcp <- read_rds("data/rds/kfun_shatin_ppcp.rds")
@@ -765,7 +762,6 @@ private_cp_ytm <- read_rds("data/rds/private_cp_ytm.rds")
 ```{r}
 public_cp_ytm <- read_rds("data/rds/public_cp_ytm.rds")
 ```
-
 
 ```{r}
 cp_ytm <-  read_rds("data/rds/cp_ytm.rds")
@@ -847,7 +843,6 @@ write_rds(roads_lines_ytm, "data/rds/roads_lines_ytm.rds")
 roads_lines_ytm <- read_rds("data/rds/roads_lines_ytm.rds")
 ```
 
-
 ```{r}
 # Apply lixelize_lines with mindist
 lixels_ytm <- lixelize_lines(roads_lines_ytm,5000, mindist = 2500)
@@ -875,7 +870,6 @@ densities_ytm_private <- nkde(roads_lines_ytm,
                   sparse = TRUE,
                   verbose = FALSE)
 ```
-
 
 ```{r}
 #| eval: false
@@ -985,7 +979,6 @@ densities_ytm_ppcp <- nkde(roads_lines_ytm,
                   verbose = FALSE)
 ```
 
-
 ```{r}
 #| eval: false
 write_rds(densities_ytm_ppcp , "data/rds/densities_ytm_ppcp.rds")
@@ -995,7 +988,6 @@ write_rds(densities_ytm_ppcp , "data/rds/densities_ytm_ppcp.rds")
 ```{r}
 densities_ytm_ppcp <- read_rds("data/rds/densities_ytm_ppcp.rds")
 ```
-
 
 ```{r}
 samples_ytm$density_ppcp <- densities_ytm_ppcp
@@ -1043,7 +1035,6 @@ kfun_ytm_ppcp <- kfunctions(roads_in_ytm,
 write_rds(kfun_ytm_ppcp, "data/rds/kfun_ytm_ppcp.rds")
 ```
 
-
 ```{r}
 kfun_ytm_ppcp <- read_rds("data/rds/kfun_ytm_ppcp.rds")
 ```
@@ -1051,12 +1042,12 @@ kfun_ytm_ppcp <- read_rds("data/rds/kfun_ytm_ppcp.rds")
 ```{r}
 kfun_ytm_ppcp$plotk
 ```
+
 ```{r}
 
 ```
 
-
-### 6. Wan Chai (Hong Kong Island) 
+### 6. Wan Chai (Hong Kong Island)
 
 ```{r}
 wanchai <- sf_district_18 %>%
@@ -1158,7 +1149,6 @@ tm_shape(roads_in_wanchai, geometry_type = "lines") +
   tm_lines()
 ```
 
-
 #### 6.3 Both Private and Public Bins in Wan Chai Districts
 
 ```{r}
@@ -1172,7 +1162,6 @@ write_rds(roads_lines_wanchai, "data/rds/roads_lines_wanchai.rds")
 ```{r}
 roads_lines_wanchai <- read_rds("data/rds/roads_lines_wanchai.rds")
 ```
-
 
 ```{r}
 # Apply lixelize_lines with mindist
@@ -1211,7 +1200,6 @@ write_rds(densities_wanchai_ppcp , "data/rds/densities_wanchai_ppcp.rds")
 ```{r}
 densities_wanchai_ppcp <- read_rds("data/rds/densities_wanchai_ppcp.rds")
 ```
-
 
 ```{r}
 samples_wanchai$density_ppcp <- densities_wanchai_ppcp
@@ -1262,7 +1250,6 @@ kfun_wanchai_ppcp <- kfunctions(roads_in_wanchai,
 write_rds(kfun_wanchai_ppcp, "data/rds/kfun_wanchai_ppcp.rds")
 ```
 
-
 ```{r}
 kfun_wanchai_ppcp <- read_rds("data/rds/kfun_wanchai_ppcp.rds")
 ```
@@ -1270,4 +1257,3 @@ kfun_wanchai_ppcp <- read_rds("data/rds/kfun_wanchai_ppcp.rds")
 ```{r}
 kfun_wanchai_ppcp$plotk
 ```
-

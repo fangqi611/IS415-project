@@ -29,6 +29,7 @@ library(readxl)
 library(DT)
 library(stringr)
 library(shinycssloaders)
+library(memoise)
 
 options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=2)
 
@@ -45,6 +46,10 @@ district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
 
 sf_district_18 <- st_transform(district_18, crs = 2326)
 
+
+
+
+read_csv_cached <- memoise(read_csv)
 cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
 cp_sf <- st_as_sf(cp, 
                   coords = c("lgt","lat"), 
@@ -541,7 +546,7 @@ server <- function(input, output, session) {
         map_data <- cp_sf_1_expanded %>% filter(district_id == input$District)
       }
       
-      #bbox <- if (nrow(map_data) > 0) st_bbox(map_data) else st_bbox(sf_district_18)
+      bbox <- if (nrow(map_data) > 0) st_bbox(map_data) else st_bbox(sf_district_18)
       
       
       # Create the map with tmap, adjusting as necessary for your data
@@ -551,7 +556,7 @@ server <- function(input, output, session) {
         tm_shape(map_data) +
         tm_dots() +
         tm_layout(title = "Recycling Bin Locations") +
-        #tm_view(bbox = bbox) + # Use the calculated bounding box to set the map view
+        tm_view(bbox = bbox) + # Use the calculated bounding box to set the map view
         tmap_options(check.and.fix = TRUE)
       
       # Return the tmap object for rendering
@@ -563,7 +568,7 @@ server <- function(input, output, session) {
       map_data <- filteredData()
       
       # Check if the dataset is empty and the district is not 'All'
-      if (!any(is.na(map_data))) {
+      if (!any(is.na(map_data)) && input$District != "All") {
         # Return a UI element with the message
         return(HTML("<div style='color: red; padding: 10px;'><strong>No data available for the selected criteria in the specified district.</strong></div>"))
       }

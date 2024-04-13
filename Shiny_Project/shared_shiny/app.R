@@ -204,7 +204,23 @@ types_of_waste <- c(
 #####################################
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(theme=shinytheme("united"),
+ui <- fluidPage(tags$head(
+  tags$style(HTML("
+            .navbar, .navbar-default {
+                background-color: #228B22 !important;  /* Forest Green */
+                border-color: #228B22 !important;
+            }
+            .navbar-default .navbar-nav > li > a, .navbar-default .navbar-brand {
+                color: #fff !important;  /* White text for contrast */
+            }
+            .navbar-default .navbar-nav > .active > a, 
+            .navbar-default .navbar-nav > .active > a:hover, 
+            .navbar-default .navbar-nav > .active > a:focus {
+                background-color: #8DAF8D !important;  /* Darker shade of #9EC89E for active tabs */
+                color: #fff !important;
+            }
+        "))
+),
                 
                 # -----Navigation Bar
                 navbarPage("Project Daylight", 
@@ -213,9 +229,54 @@ ui <- fluidPage(theme=shinytheme("united"),
                                     h2(div(style = "text-align: center;", "Welcome to Project Daylight!")),
                                     div(style = "text-align: center;", imageOutput("logo")), 
                                     br(),
-                                    h3("Project Description:"), 
-                                    br(), 
-                                    h3("User Guide of Shiny:")
+                                    h4(strong("Project Description")),
+                                    p("We would be using spatial point patterns analysis to study the distribution of recycling collection points in Hong Kong is random or clustered. We believe 
+                                      using this analysis is very useful to investigate whether there are any dependency relationships between them and the area’s density. From these results, 
+                                      we can make a fair comparison and conclusion."),
+                                    p("We will also be performing network constrained spatial point patterns analysis to analyse the spatial point patterns to delve deeper insights, and understand
+                                      if these events are affected by a network or there are spatial points events occurring alongside a network in our Shiny application."),
+                                    p("For spatial point patterns analysis(SPPA), we would like to find out if the collection points in Hong Kong are randomly distributed throughout the country 
+                                      and if not, where are the locations with higher concentrations of collection points."),
+                                    p("For network constrained spatial point patterns analysis, we would like to discover whether the distribution of the collection points are affected by the 
+                                      road network in Singapore. Through these analyses, we can investigate whether the distribution of Airbnb locations in Singapore are affected by point events 
+                                      or the road network."),
+                                    br(),
+                                    h4(strong("Project Motivation")),
+                                    p("Our team want to develop an innovative application designed to assist government officials in addressing recycling challenges at national and district 
+                                      levels in Hong Kong. Hong Kong faces a significant waste management challenge due to limited landfill space, exacerbated by the COVID-19 pandemic and a lack 
+                                      of widespread recycling habits among its residents."),
+                                    p("Through our initiative, we aim not only to conserve Hong Kong's valuable resources but also to promote environmental sustainability when restructuring 
+                                      their recycling points. Furthermore, we aspire to offer valuable insights and lessons learned that can be applied by government officials beyond Hong Kong, 
+                                      guiding the implementation of successful nationwide recycling campaigns worldwide."),
+                                    br(),
+                                    h4(strong("About our Application")),
+                                    p("Our application is focused on recycling collection points in Singapore and will assist users with two methods of Point Pattern Analysis:"),
+                                    tags$ul(
+                                      tags$li("Spatial Point Patterns Analysis (SPPA)"),
+                                      tags$li("Network-Constrained Point Patterns Analysis (NetSPPA)")
+                                    ),
+                                    br(),
+                                    p("For SPPA, users will be able to view the kernel density map of recycling collection points in different districts. We have chosen 3 districts, Wan Chai, Sha Tin and Yau Tsim Mong:"),
+                                    tags$ul(
+                                      tags$li("Hong Kong"),
+                                      tags$li("Wan Chai - the least population in Hong Kong"),
+                                      tags$li("Sha Tin - the second population in Hong Kong behind Yau Tsim Mong"),
+                                      tags$li("Yau Tsim Mong - the highest population in Hong Kong"),
+                                    ),
+                                    br(),
+                                    p("For NetSPPA, we will be focusing on the street network in Rochor. We chose Rochor as Rochor has a significant number of Airbnbs and each type of point events (Tourist Attractions, Bus Stops, Hotels, Shopping Malls, MRTs, 7-11s and Universities) are greater than 5, which will allow us to draw better statistical conclusions than the other zones with too little points. For example, Kallang only has 1 attraction and 1 university hence we will not be able to draw reliable statistical conclusions using Network Cross K-Function."),
+                                    br(),
+                                    p("To know more about how to use our application, ", tags$a(href="https://github.com/valtyl/IS415-GAA-Project/tree/master/others", "here"), " is our user guide!"),
+                                    br(),
+                                    h4(strong("Credits")),
+                                    imageOutput("smu_logo"),
+                                    p("This project is done for IS415 Geospatial Analytics & Applications, a module in Singapore Management University with the guidance of Professor Kam Tin Seong."),
+                                    br(),
+                                    p("Done by:"),
+                                    tags$ul(
+                                      tags$li(tags$a(href="https://www.linkedin.com/in/fang-qi-lim/", "Lim Fang Qi")),
+                                      tags$li(tags$a(href="https://www.linkedin.com/in/yashica-k", "Karina Lee Sheung Yan")),
+                                    ),
                                     ), 
                            
                            tabPanel("Overview", icon = icon("map"), 
@@ -243,6 +304,7 @@ ui <- fluidPage(theme=shinytheme("united"),
                                        )), 
                                       
                                       ), 
+                           tabPanel("KDE", icon = icon("earth")),
                            tabPanel("NKDE", icon = icon("globe"), 
                                     h2(p("Network Spatial Point Analysis")), 
                                     tabsetPanel(
@@ -415,6 +477,12 @@ server <- function(input, output, session) {
            style = "max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;")
     },deleteFile = FALSE)
     
+    output$smu_logo <- renderImage({
+      list(src = "images/smu_logo.jpg",
+           style = "max-width: 100%; height: auto; display: block; margin-left: auto; 
+          margin-right: auto; margin-top: 0px; margin-bottom: 0px;")
+    }, deleteFile = FALSE)
+    
     output$shatin_if <- renderImage({
       list(src = "images/shatin_if.png",
            style = "max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;")
@@ -473,7 +541,7 @@ server <- function(input, output, session) {
         map_data <- cp_sf_1_expanded %>% filter(district_id == input$District)
       }
       
-      #bbox <- if (nrow(map_data) > 0) st_bbox(map_data) else st_bbox(sf_district_18)
+      bbox <- if (nrow(map_data) > 0) st_bbox(map_data) else st_bbox(sf_district_18)
       
       
       # Create the map with tmap, adjusting as necessary for your data
@@ -483,7 +551,7 @@ server <- function(input, output, session) {
         tm_shape(map_data) +
         tm_dots() +
         tm_layout(title = "Recycling Bin Locations") +
-        #tm_view(bbox = bbox) + # Use the calculated bounding box to set the map view
+        tm_view(bbox = bbox) + # Use the calculated bounding box to set the map view
         tmap_options(check.and.fix = TRUE)
       
       # Return the tmap object for rendering

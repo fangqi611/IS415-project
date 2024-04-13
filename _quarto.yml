@@ -12,13 +12,15 @@ website:
           - text: Storyboard
             href: "EDA/storyboard.html"
             
-      - text: Deliverables
-        href: "deliverables.html"
-        
       - text: Analysis
         menu: 
           - text: NKDE
             href: "Analysis/NKDE.html"
+            
+      - text: Deliverables
+        href: "deliverables.html"
+        
+     
             
         
         
@@ -30,13 +32,15 @@ website:
         
       - text: Github 
         href: "https://github.com/fangqi611/IS415-project" 
-        
+      
+      - text: Shiny Application 
+        href: "https://is415-ka33rina.shinyapps.io/project_daylight/"
     
 
 
 format:
   html:
-    theme: morph
+    theme: journal
     css: styles.css
     toc: true
 

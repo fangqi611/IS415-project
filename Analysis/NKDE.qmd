@@ -485,6 +485,7 @@ roads_lines_shatin <- roads_in_shatin[st_geometry_type(roads_in_shatin) == "LINE
 ```
 
 ```{r}
+#| eval: false
 write_rds(roads_lines_shatin, "data/rds/roads_lines_shatin.rds")
 ```
 

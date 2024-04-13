@@ -13,7 +13,6 @@ date: "`r Sys.Date()`"
 ---
 
 ```{r}
-#| eval: false
 pacman::p_load(arrow, lubridate, tidyverse, sf, spNetwork, raster, spatstat, tmap, readxl)
 ```
 
@@ -83,17 +82,14 @@ st_crs(district_18)
 ```
 
 ```{r}
-#| eval: false
 sf_district_18 <- district_18 %>% st_transform(crs = 2326)
 ```
 
 ```{r}
-#| eval: false
 st_crs(sf_district_18)
 ```
 
 ```{r}
-#| eval: false
 plot(st_geometry(sf_district_18))
 ```
 
@@ -104,7 +100,6 @@ class(sf_district_18)
 ### Road Data in Hong Kong
 
 ```{r}
-#| eval: false
 road_data <- st_read(dsn = "data/geospatial/china-latest-free.shp", 
                      layer = "gis_osm_roads_free_1")
 ```
@@ -320,7 +315,7 @@ tm_shape(cp_sf)+
 tm_basemap("OpenStreetMap")
 ```
 
-# Types of Recycling Points 
+# Types of Recycling Points
 
 ```{r}
 cp_sf_1 <- cp_sf %>%

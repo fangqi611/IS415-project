@@ -1,0 +1,13 @@
+name: Project_Daylight
+title: Project_Daylight
+username: is415-ka33rina
+account: is415-ka33rina
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11739549
+bundleId: 8488443
+url: https://is415-ka33rina.shinyapps.io/Project_Daylight/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: CopyOfapp.R|Demo.R|demo_1.qmd

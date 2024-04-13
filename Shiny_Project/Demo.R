@@ -1,0 +1,500 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    https://shiny.posit.co/
+#
+
+library(shiny)
+library(shinythemes)
+library(sf)
+library(tmap)
+library(arrow)
+library(lubridate)
+library(tidyverse)
+library(sp)
+library(raster)
+library(spatstat)
+library(classInt)
+library(viridis)
+library(spNetwork)
+library(spatstat)
+library(ggplot2)
+library(ggmap)
+library(tidymodels)
+library(glmnet)
+library(readxl)
+library(DT)
+library(stringr)
+library(shinycssloaders)
+
+options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=2)
+
+
+#####################################
+
+osm_basemap <- tm_basemap(server = "OpenStreetMap.HOT")
+imagery_basemap <- tm_basemap(server = "Esri.WorldImagery")
+
+hk_census <- read_excel("data/aspatial/hkcensus.xlsx")
+
+district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
+                      layer = "HKDistrict18" )
+
+sf_district_18 <- st_transform(district_18, crs = 2326)
+
+cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
+cp_sf <- st_as_sf(cp, 
+                  coords = c("lgt","lat"), 
+                  crs = 4326) %>% 
+  st_transform(crs= 2326)
+
+cp_sf_1 <- cp_sf %>%
+  mutate(district_id = toupper(str_replace_all(district_id, "_", " ")))
+
+cp_sf_1_expanded <- cp_sf_1 %>%
+  separate_rows(waste_type, sep = ",") %>%
+  mutate(waste_type = trimws(waste_type))
+
+
+recycling_bins <- subset(cp_sf_1, legend == "Recycling Bins at Public Place")
+recycling_spots <- subset(cp_sf_1, legend == "Recycling Spots")
+private_collection_points <- subset(cp_sf_1, legend == "Private Collection Points (e.g. housing estates, shopping centres)")
+ngo_collection_points <- subset(cp_sf_1, legend == "NGO Collection Points")
+recycling_stations <- subset(cp_sf_1, legend == "Recycling Stations/Recycling Stores")
+street_corner_recycling_shops <- subset(cp_sf_1, legend == "Street Corner Recycling Shops")
+smart_bins <- subset(cp_sf_1, legend == "Smart Bin")
+
+
+recycling_spots_cp <- st_join(sf_district_18, recycling_spots)
+ngo_cp <- st_join(sf_district_18, ngo_collection_points)
+pcp_joined_data <- st_join(sf_district_18, private_collection_points)
+recycling_bins_cp <- st_join(sf_district_18, recycling_bins)
+recycling_stations_cp <- st_join(sf_district_18, recycling_stations)
+street_corner_cp <- st_join(sf_district_18, street_corner_recycling_shops)
+smart_bins_cp <- st_join(sf_district_18, smart_bins)
+
+private_collection_points_by_district <- pcp_joined_data %>%
+  group_by(ENAME) %>%
+  summarize(total_pcp = n())
+
+ngo_cp_by_district <- ngo_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_ngo_cp = n())
+
+recycling_spots_by_district <- recycling_spots_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_spots = n())
+
+recycling_bins_by_district <- recycling_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_bins = n())
+
+recycling_stations_by_district <- recycling_stations_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_recycling_stations = n())
+
+street_corner_shops_by_district <- street_corner_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_street_corner = n())
+
+smart_bins_by_district <- smart_bins_cp %>%
+  group_by(ENAME) %>%
+  summarize(total_smart_bins = n())
+
+
+roads_in_hk <- read_rds("data/rds/sf_roads_in_hk.rds")
+
+private_cp_shatin <- read_rds("data/rds/private_cp_shatin.rds")
+public_cp_shatin <- read_rds("data/rds/public_cp_shatin.rds")
+cp_shatin <- read_rds("data/rds/cp_shatin.rds")
+roads_in_shatin <- read_rds("data/rds/roads_in_shatin.rds")
+roads_lines_shatin <- read_rds("data/rds/roads_lines_shatin.rds")
+densities_shatin_ppcp <- read_rds("data/rds/densities_shatin_ppcp.rds")
+kfun_shatin_ppcp <-  read_rds("data/rds/kfun_shatin_ppcp.rds")
+
+
+private_cp_ytm <- read_rds("data/rds/private_cp_ytm.rds")
+public_cp_ytm <- read_rds("data/rds/public_cp_ytm.rds")
+cp_ytm <-  read_rds("data/rds/cp_ytm.rds")
+roads_in_ytm <- read_rds("data/rds/roads_in_ytm.rds")
+roads_lines_ytm <- read_rds("data/rds/roads_lines_ytm.rds")
+densities_ytm_ppcp <- read_rds("data/rds/densities_ytm_ppcp.rds")
+kfun_ytm_ppcp <-  read_rds("data/rds/kfun_ytm_ppcp.rds")
+
+private_cp_wanchai <- read_rds("data/rds/private_cp_wanchai.rds")
+public_cp_wanchai <- read_rds("data/rds/public_cp_wanchai.rds")
+cp_wanchai <-  read_rds("data/rds/cp_wanchai.rds")
+roads_in_wanchai <- read_rds("data/rds/roads_in_wanchai.rds")
+roads_lines_wanchai <- read_rds("data/rds/roads_lines_wanchai.rds")
+densities_wanchai_ppcp <- read_rds("data/rds/densities_wanchai_ppcp.rds")
+kfun_wanchai_ppcp <-  read_rds("data/rds/kfun_wanchai_ppcp.rds")
+
+
+
+
+######################################
+#Drop-down Selection 
+districts <- c(
+  "All",
+  "WONG TAI SIN", 
+  "KOWLOON CITY",
+  "KWUN TONG", 
+  "SAI KUNG", 
+  "NORTH", 
+  "CENTRAL & WESTERN" = "CENTRAL WESTERN", 
+  "WAN CHAI", 
+  "EASTERN", 
+  "TUEN MUN", 
+  "YUEN LONG", 
+  "SOUTHERN", 
+  "ISLANDS", 
+  "SHAM SHUI PO", 
+  "YAU TSIM MONG", 
+  "KWAI TSING",
+  "TUSEN WAN", 
+  "TAI PO", 
+  "SHA TIN"
+)
+
+districts_2 <- c(
+  "WAN CHAI", 
+  "TUEN MUN", 
+  "SHAM SHUI PO", 
+  "YAU TSIM MONG", 
+  "TUSEN WAN", 
+  "SHA TIN"
+)
+
+types_of_cp <- c(
+  "Recycling Bins at Public Place",
+  "Recycling Spots",
+  "Private Collection Points (e.g. housing estates, shopping centres)",
+  "NGO Collection Points",
+  "Recycling Stations/ Recycling Stores",
+  "Street Corner Recycling Shops",
+  "Smart Bin"
+)
+
+types_of_waste <- c(
+  "Metals",
+  "Other Plastic",
+  "Paper",
+  "Glass Bottles",                          
+  "Fluorescent Lamp",                          
+  "Rechargeable Batteries",                   
+  "Regulated Electrical Equipment",            
+  "Small Electrical and Electronic Equipment",
+  "Tetra Pak",                                 
+  "Clothes",                                  
+  "Other Description",                         
+  "Barbeque Fork",                            
+  "Printer Cartridges",                        
+  "Computers",                                
+  "Others",                                    
+  "Plastic Bottle"
+  
+)
+
+
+
+
+#####################################
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(theme=shinytheme("united"),
+                
+                # -----Navigation Bar
+                navbarPage("Project Daylight", 
+                           
+                           tabPanel("Home", 
+                                    h2(div(style = "text-align: center;", "Welcome to Project Daylight!")),
+                                    div(style = "text-align: center;", imageOutput("logo_1")), 
+                                    br(),
+                                    h3("Project Description:"), 
+                                    br(), 
+                                    h3("User Guide of Shiny:")
+                                    ), 
+                           
+                           tabPanel("Overview", icon = icon("map"), 
+                                    fluidRow(
+                                      sidebarLayout(
+                                        sidebarPanel (
+                                          selectInput("District", h3("Select a District:"), 
+                                                      choices = districts), 
+                                          checkboxGroupInput("cp_type", h3("Select type of recycling facilities (optional)"), 
+                                                      choices = types_of_cp),
+                                          checkboxGroupInput("waste_type", h3("Select waste type (optional)"), 
+                                                             choices = types_of_waste)
+                                        ), 
+                                        mainPanel(
+                                          h2(p("Overview of Recycling points in Hong Kong")),
+                                          column(12,
+                                                 h6(strong("Note:")),
+                                                 p(em("Please wait a short while for the default map to load.")),
+                                                 withSpinner(tmapOutput("cp_map"), type=2)),
+                                          uiOutput("noDataMessage"),
+                                          br(),
+                                          h3("List of Recycling Points in Hong Kong"),
+                                          DTOutput("cp_data_table"),
+                                          p("Hello")
+                                        )
+                                       )), 
+                                      
+                                      ), 
+                           tabPanel("NKDE", icon = icon("globe"), 
+                                    h2(p("Network Spatial Point Analysis")), 
+                                    tabsetPanel(
+                                      tabPanel("Sha Tin",
+                                               column(12,
+                                                      h6(strong("Note:")),
+                                                      p(em("Please wait a short while for the default map to load.")),
+                                                     withSpinner(tmapOutput("shatin_map"), type=2)),
+                                               br(),
+                                               hr(), 
+                                               tabsetPanel(
+                                                 tabPanel("About Network-Constrained Kernel Density Estimation",
+                                                          column(12,
+                                                                 h4("What is Network-Constrained Kernel Density Estimation?"),
+                                                                 p("A classical Kernel Density Estimate (KDE) estimates the continuous density of a set of events in a two-dimensional space, 
+                                                          which is not suitable for analysing density of events occuring on a network. Therefore, the modified Network-Constrained 
+                                                          Kernel Density Estimation is used to calculate density of events occuring along the edges of a network."),
+                                                                 h4("How to interpret the output?"),
+                                                                 p("The road segments of darker colour have relatively higher density of point events than the road segments of lighter colour."),
+                                                          )), 
+                                                 tabPanel("Observations", 
+                                                          column(12,
+                                                                 h4("What can we observe from the NetSPPA KDE Map?"),
+                                                                 p("Overall speaking, Sha Tin District has a good spread of recycling points both public and private recycling points. "), 
+                                                                 h4("Interesting Findings"), 
+                                                                 imageOutput("shatin_if"),
+                                                                 p("This aligns with the planning of the district since these two areas are the city centre of the district, with large shopping malls 
+                                                                   and main amenities. Therefore, the network density of these areas are relatively higher.")
+                                                                 )
+                                                   
+                                                 ), 
+                                                 tabPanel("NetSPPA K-Function", 
+                                                          column(12,
+                                                                 h4("What can we observe from the NetSPPA KDE Map?"),
+                                                                 p("Overall speaking, Sha Tin District has a good spread of recycling points both public and private recycling points. "), 
+                                                                 h4("Interesting Findings"), 
+                                                                 imageOutput("shatin_if"),
+                                                                 p("This aligns with the planning of the district since these two areas are the city centre of the district, with large shopping malls 
+                                                                   and main amenities. Therefore, the network density of these areas are relatively higher.")
+                                                          )
+                                                          
+                                                 )
+                                               )), 
+                                      
+                                      tabPanel("Yau Tsim Mong",
+                                               column(12,
+                                                      h6(strong("Note:")),
+                                                      p(em("Please wait a short while for the default map to load.")),
+                                                      withSpinner(tmapOutput("ytm_map"), type=2)), 
+                                               hr(), 
+                                               br(),
+                                               tabsetPanel(
+                                                 tabPanel("About Network-Constrained Kernel Density Estimation",
+                                                          column(12,
+                                                                 h4("What is Network-Constrained Kernel Density Estimation?"),
+                                                                 p("A classical Kernel Density Estimate (KDE) estimates the continuous density of a set of events in a two-dimensional space, 
+                                                          which is not suitable for analysing density of events occuring on a network. Therefore, the modified Network-Constrained 
+                                                          Kernel Density Estimation is used to calculate density of events occuring along the edges of a network."),
+                                                                 h4("How to interpret the output?"),
+                                                                 p("The road segments of darker colour have relatively higher density of point events than the road segments of lighter colour."),
+                                                          )), 
+                                                 tabPanel("Observations", 
+                                                          column(12,
+                                                                 h4("What can we observe from the NetSPPA KDE Map?"),
+                                                                 p("Overall speaking, it has a high density network across the district, especially in Mong Kok and along the Nathan Road. "), 
+                                                                 h4("Interesting Findings"), 
+                                                                 div(style = "text-align: center;",imageOutput("ytm_if")),
+                                                                 p("It is interesting to find that the density of networks in Yau Tsim Mong district is highly dense, especially along the Nathan 
+                                                                   Road. This may be due to the fact that Nathan Road is the longest street in Hong Kong as well as located with different commercial 
+                                                                   activities along the street.")
+                                                          )))), 
+                                      tabPanel("Wan Chai",
+                                               column(12,
+                                                      h6(strong("Note:")),
+                                                      p(em("Please wait a short while for the default map to load.")),
+                                                      withSpinner(tmapOutput("wanchai_map"), type=2)), 
+                                               hr(), 
+                                               br(),
+                                               tabsetPanel(
+                                                 tabPanel("About Network-Constrained Kernel Density Estimation",
+                                                          column(12,
+                                                                 h4("What is Network-Constrained Kernel Density Estimation?"),
+                                                                 p("A classical Kernel Density Estimate (KDE) estimates the continuous density of a set of events in a two-dimensional space, 
+                                                          which is not suitable for analysing density of events occuring on a network. Therefore, the modified Network-Constrained 
+                                                          Kernel Density Estimation is used to calculate density of events occuring along the edges of a network."),
+                                                                 h4("How to interpret the output?"),
+                                                                 p("The road segments of darker colour have relatively higher density of point events than the road segments of lighter colour."),
+                                                          )), 
+                                                 tabPanel("Observations", 
+                                                          column(12,
+                                                                 h4("What can we observe from the NetSPPA KDE Map?"),
+                                                                 p("There are more private collection points in the highland of Wan Chai. In addition, we can find there are 3 circled areas in the 
+                                                                   heartlands of Wan Chai District e.g. Causeway Bay, the centre part of Wan Chai and Happy Valley."), 
+                                                                 h4("Interesting Findings"), 
+                                                                 div(style = "text-align: center;", imageOutput("wanchai_if")),
+                                                                 p("It is interesting to find that the higher area of Wan Chai has more distribution of private recycling facilities. This may be 
+                                                                   due to the fact that there are more residential areas in the highland of Wan Chai.")
+                                                          )
+                                                          
+                                                 ))
+                                      )
+                                  
+                                     
+                                    )
+                                    
+                                    
+                                    
+
+                                    )
+                                      
+                           )
+                           
+)
+                        
+                           
+  
+                
+
+
+
+# Define server logic required to draw a histogram
+server <- function(input, output, session) {
+  
+  tmap_mode("view")
+    
+    output$d18_map <- renderTmap({
+      
+      map <- tm_shape(sf_district_18) +
+        tm_fill(col = "ENAME", title = "District", legend.show = FALSE) +
+        tm_borders(col = "black", lwd = 0.5) +
+        tm_text("ID", size = 0.5, col = "black") +
+        tm_layout(frame = FALSE)+ 
+        tmap_options(check.and.fix = TRUE)
+      
+      map
+    })
+    
+################# images ################
+    
+    output$logo_1 <- renderImage({
+      list(src = "images/Logo.png",
+           style = "max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;")
+    },deleteFile = FALSE)
+    
+    
+  
+############### Overiview Page ###############
+    
+### All the recycling points in hk map   
+   
+     filteredData <- reactive({
+      
+      cp_selected <- cp_sf_1_expanded 
+      
+      # Filter by district if a specific district is selected
+      if (input$District != "All") {
+        cp_selected <- cp_selected %>%
+          filter(district_id == input$District)
+      }
+      
+      # Filter by type of collection points
+      if (length(input$cp_type) > 0) {
+        cp_selected <- cp_selected %>%
+          filter(legend %in% input$cp_type)
+      }
+      
+      # Filter by waste type if specified
+      if (length(input$waste_type) > 0) {
+        cp_selected <- cp_selected %>%
+          filter(waste_type %in% input$waste_type)
+      }
+      
+      cp_selected
+    })
+    
+    
+    # Render the map based on the filtered dataset
+    output$cp_map <- renderTmap({
+     
+      # Access the filtered dataset
+      map_data <- filteredData()
+      
+      if (nrow(map_data) == 0 && input$District != "All") {
+        map_data <- cp_sf_1_expanded %>% filter(district_id == input$District)
+      }
+      
+      #bbox <- if (nrow(map_data) > 0) st_bbox(map_data) else st_bbox(sf_district_18)
+      
+      
+      # Create the map with tmap, adjusting as necessary for your data
+      cp_map <- tm_basemap("OpenStreetMap") +
+        tm_shape(sf_district_18) + # Correct way to add sf_district_18 geometries
+        tm_borders() + # Add borders for sf_district_18 without specifying color or width
+        tm_shape(map_data) +
+        tm_dots() +
+        tm_layout(title = "Recycling Bin Locations") +
+        #tm_view(bbox = bbox) + # Use the calculated bounding box to set the map view
+        tmap_options(check.and.fix = TRUE)
+      
+      # Return the tmap object for rendering
+      cp_map
+    })
+    
+    output$noDataMessage <- renderUI({
+      # Access the filtered dataset
+      map_data <- filteredData()
+      
+      # Check if the dataset is empty and the district is not 'All'
+      if (!any(is.na(map_data)) && input$District != "All") {
+        # Return a UI element with the message
+        return(HTML("<div style='color: red; padding: 10px;'><strong>No data available for the selected criteria in the specified district.</strong></div>"))
+      }
+    })
+    
+####### Data Table for all recycling points inhk     
+    
+    filteredDT <- reactive({
+      
+      cp_selected_1 <- cp_sf_1
+      
+      # Filter by district if a specific district is selected
+      if (input$District != "All") {
+        cp_selected_1 <- cp_selected_1 %>%
+          filter(district_id == input$District)
+      }
+      
+      # Filter by type of collection points
+      if (length(input$cp_type) > 0) {
+        cp_selected_1 <- cp_selected_1 %>%
+          filter(legend %in% input$cp_type)
+      }
+      
+      if (length(input$waste_type) > 0) {
+        # Create a regex pattern from the user's selection, escaping special characters
+        pattern <- paste(lapply(input$waste_type, regex), collapse = "|")
+        
+        # Filter rows where waste_type contains any of the selected waste types
+        cp_selected_1 <- cp_selected_1 %>%
+          filter(str_detect(waste_type, pattern))
+      }
+      
+      cp_selected_1 <- cp_selected_1 
+    })
+    
+    output$cp_data_table <- renderDT({
+      datatable(filteredDT(), options = list(pageLength = 10))
+    })
+    
+
+    
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)

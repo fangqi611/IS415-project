@@ -1,0 +1,28 @@
+---
+title: "demo"
+---
+
+```{r}
+pacman::p_load(arrow, dplyr, lubridate, ggplot2, tidyverse, sf, sfdep, sp, spNetwork, spdep, raster, spatstat, tmap, readxl, plotly)
+```
+
+```{r}
+roads_lines_shatin <- read_rds("data/rds/roads_lines_shatin.rds")
+```
+
+```{r}
+roads_lines_ytm <- read_rds("data/rds/roads_lines_ytm.rds")
+```
+
+```{r}
+roads_lines_shatin <- read_rds("data/rds/roads_lines_shatin.rds")
+```
+
+```{r}
+plot(roads_lines_shatin)
+```
+
+```{r}
+plot(roads_lines_ytm)
+
+```

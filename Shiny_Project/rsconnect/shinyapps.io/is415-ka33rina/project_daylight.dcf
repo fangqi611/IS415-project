@@ -5,9 +5,9 @@ account: is415-ka33rina
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11747438
-bundleId: 8489713
+bundleId: 8492440
 url: https://is415-ka33rina.shinyapps.io/project_daylight/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: shared_shiny
+ignoredFiles: app (3).R|shared_shiny.zip|shared_shiny

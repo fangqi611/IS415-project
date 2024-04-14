@@ -29,6 +29,8 @@ library(readxl)
 library(DT)
 library(stringr)
 library(shinycssloaders)
+library(memoise)
+
 
 options(spinner.color="#0275D8", spinner.color.background="#ffffff", spinner.size=2)
 
@@ -45,11 +47,14 @@ district_18 <- st_read(dsn = "data/geospatial/hk_18Districts/",
 
 sf_district_18 <- st_transform(district_18, crs = 2326)
 
+
+read_csv_cached <- memoise(read_csv)
 cp <- read_csv("data/aspatial/hkrecyclepoints.csv")
 cp_sf <- st_as_sf(cp, 
                   coords = c("lgt","lat"), 
                   crs = 4326) %>% 
   st_transform(crs= 2326)
+
 
 cp_sf_1 <- cp_sf %>%
   mutate(district_id = toupper(str_replace_all(district_id, "_", " ")))
@@ -131,6 +136,32 @@ roads_in_wanchai <- read_rds("data/rds/roads_in_wanchai.rds")
 roads_lines_wanchai <- read_rds("data/rds/roads_lines_wanchai.rds")
 densities_wanchai_ppcp <- read_rds("data/rds/densities_wanchai_ppcp.rds")
 kfun_wanchai_ppcp <-  read_rds("data/rds/kfun_wanchai_ppcp.rds")
+
+####################################
+#KDE for Wan Chai
+
+wanchaigaussian <- read_rds("./data/rds/wanchaigaussian.rds")
+wanchaiepanechnikov <- read_rds("./data/rds/wanchaiepanechnikov.rds")
+wanchaiquartic <- read_rds("./data/rds/wanchaiquartic.rds")
+wanchaidisc <- read_rds("./data/rds/wanchaidisc.rds")
+
+####################################
+#KDE for Sha Tin
+
+
+shatingaussian <- read_rds("./data/rds/shatingaussian.rds")
+shatinepanechnikov <- read_rds("./data/rds/shatinepanechnikov.rds")
+shatinquartic <- read_rds("./data/rds/shatinquartic.rds")
+shatindisc <- read_rds("./data/rds/shatindisc.rds")
+
+####################################
+#KDE for Yau Tsim Mong
+
+ytmgaussian <- read_rds("./data/rds/ytmgaussian.rds")
+ytmepanechnikov <- read_rds("./data/rds/ytmepanechnikov.rds")
+ytmquartic <- read_rds("./data/rds/ytmquartic.rds")
+ytmdisc <- read_rds("./data/rds/ytmdisc.rds")
+
 
 
 
@@ -221,6 +252,24 @@ ui <- fluidPage(tags$head(
             }
         "))
 ),
+tags$head(
+  HTML(
+    "
+          <script>
+          var socket_timeout_interval
+          var n = 0
+          $(document).on('shiny:connected', function(event) {
+          socket_timeout_interval = setInterval(function(){
+          Shiny.onInputChange('count', n++)
+          }, 150000)
+          });
+          $(document).on('shiny:disconnected', function(event) {
+          clearInterval(socket_timeout_interval)
+          });
+          </script>
+          "
+  )
+),textOutput("keepAlive"),
                 
                 # -----Navigation Bar
                 navbarPage("Project Daylight", 
@@ -304,7 +353,59 @@ ui <- fluidPage(tags$head(
                                        )), 
                                       
                                       ), 
-                           tabPanel("KDE", icon = icon("earth")),
+                           tabPanel("KDE", icon = icon("earth"),
+                                    tabPanel("SPPA",
+                                             #Application title
+                                             titlePanel("Spatial Point Patterns Analysis"),
+                                             
+                                             sidebarLayout(
+                                               sidebarPanel(fluid = TRUE, width = 3,
+                                                            # If KDE tabPanel is clicked, sidebarPanel below will be shown
+                                                            conditionalPanel(
+                                                              'input.SPPA_var === "SPPA Kernel Density Estimation"',
+                                                              selectInput(
+                                                                "SPPA_main_var",
+                                                                "Districts",
+                                                                choices = c("Wan Chai", "Sha Tin", "Yau Tsim Mong"),
+                                                                selected = "Sha Tin",
+                                                                multiple = FALSE
+                                                              ),
+                                                              selectInput(
+                                                                "SPPA_kernel",
+                                                                "Kernel Smoothing Input",
+                                                                choices = c("Gaussian" = "gaussian",
+                                                                            "Epanechnikov" = "epanechnikov",
+                                                                            "Quartic" = "quartic",
+                                                                            "Disc" = "disc"),
+                                                                selected = "gaussian",
+                                                                multiple = FALSE
+                                                              ),
+                                                              actionButton("SPPA_Run_KDE", "Run Analysis")
+                                                            ),
+                                               ), # close sidebarPanel
+                                               mainPanel(width = 9,
+                                                         tabsetPanel(
+                                                           id = "SPPA_var",
+                                                           tabPanel("SPPA Kernel Density Estimation",
+                                                                    column(12,
+                                                                           h6(strong("Note:")),
+                                                                           p(em("Please select the district and kernel smoothing method of interest for the graph to load.")),
+                                                                           p(em("Variable: Collection Points in Sha Tin, Kernel: Gaussian, and Bandwidth Method. Select alternative choices and click on 'Run Analysis' to update the map.")),
+                                                                           withSpinner(plotOutput("SPPA_KDE_Map"), type = 2, color.background = "#ffffff"),
+                                                                           # withSpinner(tmapOutput("KDEPlot", width = "100%", height = 400), type=2, color.background = "#ffffff"),
+                                                                           tabsetPanel(
+                                                                             id = "SPPA_KDE_info",
+                                                                             tabPanel("About Spatial Kernel Density Estimation",
+                                                                                      column(12,
+                                                                                             h4("What is Spatial Kernel Density Estimation?"),
+                                                                                             p("Kernel Density Estimation (KDE) is one of the most used density-based measures to estimate local density. It creates a grid in which each cell is assigned the density value of the kernel window centred on that cell. The density value is estimated by counting the number of objects/events in that kernel window."),
+                                                                                             h5("How to interpret the output?"),
+                                                                                             p("The brighter the colour towards yellow, means that the collection points in that district is more heavily concentrated there. The darker shades, in navy blue indicate lower densities of collection points in that area.")
+                                                                                      )))))
+                                                         ) # close tabsetPanel
+                                               ) # close mainPanel
+                                             ))
+                                    ),
                            tabPanel("NKDE", icon = icon("globe"), 
                                     h2(p("Network Spatial Point Analysis")), 
                                     tabsetPanel(
@@ -455,6 +556,9 @@ ui <- fluidPage(tags$head(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
+  
+  keep_alive <- shiny::reactiveTimer(intervalMs = 10000, session = shiny::getDefaultReactiveDomain())
+  shiny::observe({keep_alive()})
   
   tmap_mode("view")
     
@@ -713,7 +817,55 @@ server <- function(input, output, session) {
       
     )
  
+    output$keepAlive <- renderText({
+      req(input$count)
+      paste("keep alive ", input$count)
+    })
+###################### KDE 
     
+    sppa_var <- function(){
+      map <- NULL
+      
+      if(input$SPPA_main_var == "Wan Chai"){
+        if (input$SPPA_kernel == "gaussian") {
+          map <- wanchaigaussian }
+        else if (input$SPPA_kernel == "epanechnikov") {
+          map <- wanchaiepanechnikov }
+        else if (input$SPPA_kernel == "quartic") {
+          map <- wanchaiquartic }
+        else if (input$SPPA_kernel == "disc") {
+          map <- wanchaidisc }
+      }
+      else if (input$SPPA_main_var == "Sha Tin"){
+        if (input$SPPA_kernel == "gaussian") {
+          map <- shatingaussian }
+        else if (input$SPPA_kernel == "epanechnikov") {
+          map <- shatinepanechnikov }
+        else if (input$SPPA_kernel == "quartic") {
+          map <- shatinquartic }
+        else if (input$SPPA_kernel == "disc") {
+          map <- shatindisc }
+      }
+      else if (input$SPPA_main_var == "Yau Tsim Mong"){
+        if (input$SPPA_kernel == "gaussian") { 
+          map <- ytmgaussian }
+        else if (input$SPPA_kernel == "epanechnikov") {
+          map <- ytmepanechnikov }
+        else if (input$SPPA_kernel == "quartic") {
+          map <- ytmquartic }
+        else if (input$SPPA_kernel == "disc") {
+          map <- ytmdisc }
+      }
+      return(map)
+    }
+    
+    generate_plot <- eventReactive(input$SPPA_Run_KDE, {
+      plot(sppa_var(), main=paste(input$SPPA_main_var, "-", input$SPPA_kernel))
+    })
+    
+    output$SPPA_KDE_Map <- renderPlot({
+      generate_plot()
+    })
 }
 
 # Run the application 

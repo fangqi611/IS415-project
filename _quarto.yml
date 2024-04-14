@@ -12,11 +12,6 @@ website:
           - text: Storyboard
             href: "EDA/storyboard.html"
             
-      - text: Analysis
-        menu: 
-          - text: NKDE
-            href: "Analysis/NKDE.html"
-            
       - text: Deliverables
         href: "deliverables.html"
         

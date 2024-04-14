@@ -42,7 +42,7 @@ Users are advised to allow a moment for the map to load upon their first visit t
 
 ## KDE
 
-![](images/clipboard-1886523440.png)
+![](images/photo_2024-04-14_22-59-58.jpg)
 
 On this page, we will be using Kernel Density Estimation which is one of the most used density-based measures to estimate local density in the context of Hong Kong. It creates a grid in which each cell is assigned the density value of the kernel window centred on that cell. The density value is estimated by counting the number of objects/events in that kernel window.
 

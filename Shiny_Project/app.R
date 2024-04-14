@@ -309,7 +309,70 @@ ui <- fluidPage(tags$head(
                                        )), 
                                       
                                       ), 
-                           tabPanel("KDE", icon = icon("earth")),
+                           tabPanel("KDE", icon = icon("earth"), 
+                                    #Application title
+                                    titlePanel("Spatial Point Patterns Analysis"),
+                                    
+                                    sidebarLayout(
+                                      sidebarPanel(fluid = TRUE, width = 3,
+                                                   # If KDE tabPanel is clicked, sidebarPanel below will be shown
+                                                   conditionalPanel(
+                                                     'input.SPPA_var === "SPPA Kernel Density Estimation"',
+                                                     selectInput(
+                                                       "SPPA_main_var",
+                                                       "Districts",
+                                                       choices = c("Wan Chai", "Sha Tin", "Yau Tsim Mong"),
+                                                       selected = "Sha Tin",
+                                                       multiple = FALSE
+                                                     ),
+                                                     selectInput(
+                                                       "SPPA_kernel",
+                                                       "Kernel Smoothing Input",
+                                                       choices = c("Gaussian" = "gaussian",
+                                                                   "Epanechnikov" = "epanechnikov",
+                                                                   "Quartic" = "quartic",
+                                                                   "Disc" = "disc"),
+                                                       selected = "gaussian",
+                                                       multiple = FALSE
+                                                     ),
+                                                     actionButton("SPPA_Run_KDE", "Run Analysis")
+                                                   ),
+                                                   # If G-Function tabPanel is clicked, the sidebarPanel below will be shown
+                                                   conditionalPanel(
+                                                     'input.SPPA_var === "SPPA G-Function"',
+                                                     selectInput(
+                                                       "SPPA_G_Main",
+                                                       "Zone",
+                                                       choices = c("Wan Chai", "Sha Tin", "Yau Tsim Mong"),
+                                                       selected = "Sha Tin",
+                                                       multiple = FALSE
+                                                     ),
+                                                     numericInput(
+                                                       "SPPA_G_No_Simulations",
+                                                       "Number of Simulations",
+                                                       value = 99,
+                                                       max = 99
+                                                     )
+                                                   )
+                                      ), # close sidebarPanel
+                                      mainPanel(width = 9,
+                                                tabsetPanel(
+                                                  id = "SPPA_var",
+                                                  tabPanel("SPPA Kernel Density Estimation",
+                                                           column(12,
+                                                                  h6(strong("Note:")),
+                                                                  p(em("Please wait a short while for the default map to load.")),
+                                                                  p(em("Variable: Collection Points in Sha Tin, Kernel: Gaussian, and Bandwidth Method: auto-bw.diggle are used to plot the default map, select alternative choices and click on 'Run Analysis' to update the map.")),
+                                                                  withSpinner(tmapOutput("KDEPlot", width = "100%", height = 400), type=2, color.background = "#ffffff"),
+                                                                  tabsetPanel(
+                                                                    id = "SPPA_KDE_info",
+                                                                    tabPanel("About Spatial Kernel Density Estimation",
+                                                                             column(12,
+                                                                                    h4("What is Spatial Kernel Density Estimation?"),
+                                                                                    p("Kernel Density Estimation (KDE) is one of the most used density-based measures to estimate local density. It creates a grid in which each cell is assigned the density value of the kernel window centred on that cell. The density value is estimated by counting the number of objects/events in that kernel window."),
+                                                                                    h4("How to interpret the output?"),
+                                                                                    p("The v in the legend indicates the number of objects/events in the kernel window centred in each grid. The darker the colour of the area, the higher the intensity of points density in that area.")
+                                                                             ))))))))),
                            tabPanel("NKDE", icon = icon("globe"), 
                                     h2(p("Network Spatial Point Analysis")), 
                                     tabsetPanel(

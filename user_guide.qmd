@@ -26,7 +26,7 @@ This is our homepage. You will find a nagvigation bar on top which it can bring 
 
 You may also learn more about our project and project motivation by scrolling through our homepage.
 
-## Overview 
+## Overview
 
 ![](images/clipboard-3582876104.png)
 
@@ -40,9 +40,23 @@ The table below the map titled 'List of Recycling Points in Hong Kong' enumerate
 
 Users are advised to allow a moment for the map to load upon their first visit to the page, as indicated by the note at the top of the map section. This interactive tool is designed to empower citizens to participate in recycling efforts by providing a user-friendly and informative platform.
 
-## KDE 
+## KDE
 
-## NKDE (Network Kernal Density Estimation) 
+On this page, we will be using Kernel Density Estimation which is one of the most used density-based measures to estimate local density in the context of Hong Kong. It creates a grid in which each cell is assigned the density value of the kernel window centred on that cell. The density value is estimated by counting the number of objects/events in that kernel window.
+
+In this case the objects/events are the collection points and we will depict the KDE by district of Wan Chai, Sha Tin and Yau Tsim Mong . Users can choose the district of their interest in the drop down button on the left hand side and also the type of kernel smoothing method. These different kernel smoothing method is suitable for different types of data and applications, depending on the user of interest and study, each smoothing method produces a different KDE map of the density of the district, the spread of the density becomes different as well.
+
+1.  Gaussian : Assigns weights to neighboring data points based on their distance from the point of interest
+
+2.  Epanechnikov: Assigns a weight of 1 to points within a certain bandwidth and 0 to points outside the bandwidth, often used for robust density estimation.
+
+3.  Quartic: Assigns a weight to data points based on their distance from the point of interest and nonzero weights to a larger range of data points.
+
+4.  Disc: Assigns equal weights to all data points within a certain bandwidth and 0 weight to points outside the bandwidth, treats all data points equally within the bandwidth.
+
+The bar on the right hand side measures the density of the collection points for that district. The brighter the colour towards yellow, 100 range, means that the collection points in that district is more heavily concentrated there. The darker shades, in navy blue towards the 20 range indicate lower densities of collection points in that area.
+
+## NKDE (Network Kernal Density Estimation)
 
 ![](images/clipboard-1152750894.png)
 
@@ -56,7 +70,7 @@ Users can zoom in and out using the plus and minus buttons to examine the map mo
 
 In addition to the NKDE Map, additional tabs like "About Network-Contrained Kernal Density Estimation", "Observation" and "NetSPPA K-Function" are included for users to explore a bit more about the NKDE.
 
-### Observations 
+### Observations
 
 ![](images/clipboard-3718885929.png)
 
